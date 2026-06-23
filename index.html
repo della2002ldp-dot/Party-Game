@@ -29,6 +29,14 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:-.5px}
   background:linear-gradient(92deg,var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
 .tag{text-align:center;color:var(--mut);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
 .label{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut2);margin-bottom:10px}
+.rules-wrap{flex:1;min-height:0;overflow-y:auto;margin:8px 0 12px;padding-right:2px}
+.rules-h{font-family:var(--disp);font-weight:800;font-size:15px;margin:18px 0 7px;color:var(--tx)}
+.rules-p{font-size:14px;line-height:1.5;color:#D7D5E2}
+.rules-p b{color:var(--tx);font-weight:700}
+.rlist{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.rlist li{font-size:13.5px;line-height:1.42;color:#D7D5E2;display:flex;gap:9px;align-items:flex-start}
+.rlist li .e{flex:0 0 22px;text-align:center;font-size:15px;line-height:1.42}
+.rlist li b{color:var(--tx);font-weight:700}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:16px;
   font-family:var(--disp);font-weight:600;font-size:16px;border:none;cursor:pointer;color:#fff;
   background:linear-gradient(92deg,var(--violet),var(--pink));box-shadow:0 8px 24px -6px rgba(255,46,139,.5)}
@@ -83,6 +91,17 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:-.5px}
 .pip{align-self:center;justify-self:center;width:13px;height:13px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%,#fff,var(--cyan));box-shadow:0 0 8px var(--cyan)}
 .pip.off{background:transparent;box-shadow:none}
+.cact{display:none;flex-direction:column;gap:10px;margin:6px 0 2px}
+.cact-row{display:flex;align-items:center;gap:12px;justify-content:center}
+.cdie{width:56px;height:56px;border-radius:14px;background:var(--surface2);border:1px solid var(--line2);
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);place-items:center;padding:9px;gap:0;flex:0 0 auto}
+.cdie .pip{width:9px;height:9px}
+.cact-btn{width:auto;font-size:14px;padding:12px 14px}
+.cact-row .cact-btn{flex:1}
+.cdraw{font-family:var(--body);font-weight:500;font-size:14px;color:var(--tx);background:var(--surface2);
+  border:1px dashed var(--line2);border-radius:12px;padding:12px;line-height:1.4}
+.cdraw:empty{display:none;padding:0;border:none}
+.cdraw-tag{display:block;font-family:var(--disp);font-weight:700;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
 
 /* OVERLAY CARD */
 #overlay{position:absolute;inset:0;background:rgba(5,4,12,.78);backdrop-filter:blur(6px);
@@ -175,7 +194,54 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:-.5px}
       <div class="chips" id="chips"></div>
     </div>
     <div style="flex:1"></div>
+    <button class="btn ghost" data-act="openRules" style="margin-bottom:10px">📖 Regole</button>
     <button class="btn" data-act="start">Inizia la serata</button>
+  </section>
+
+  <!-- RULES -->
+  <section class="screen" id="rules">
+    <div class="logo" style="font-size:clamp(26px,7.5vw,36px);margin-bottom:2px">Come si gioca</div>
+    <div class="rules-wrap">
+      <p class="rules-p" style="margin-top:2px">Un giro di brindisi a turni: tiri, ti muovi, fai quello che dice la casella. Si gira finché non chiudete la serata.</p>
+
+      <div class="rules-h">🎲 Il turno</div>
+      <p class="rules-p"><b>Tira il dado</b>, la pedina avanza di quei passi e si ferma su una casella. Fai ciò che chiede, poi tocca al prossimo.</p>
+
+      <div class="rules-h">🧭 Le caselle</div>
+      <ul class="rlist">
+        <li><span class="e">❓</span><span><b>Scomode</b>, <b>🌶️ Piccanti</b>, <b>🎯 Sfide</b>, <b>⏱️ A tempo</b>, <b>🧠 Trivia</b>, <b>🍺 Classici</b>: peschi una carta da fare.</span></li>
+        <li><span class="e">💣</span><span><b>Mina</b>: bevi e basta.</span></li>
+        <li><span class="e">🎰</span><span><b>Jackpot</b>: +1 Jolly da tenere da parte.</span></li>
+        <li><span class="e">⚡</span><span><b>Duello</b>: sfida 1 contro 1, chi perde beve.</span></li>
+        <li><span class="e">🌊</span><span><b>Tutti bevono</b>, <b>🌡️ Surriscalda</b>, <b>🏁 Checkpoint</b>, <b>📊 Classifica</b>: eventi al volo.</span></li>
+        <li><span class="e">✍️</span><span><b>Crea</b>: scrivi tu una carta nuova (qui sotto).</span></li>
+      </ul>
+
+      <div class="rules-h">🔥 Heat</div>
+      <p class="rules-p">La barra in alto sale a ogni giro completato. Più è alta, più le carte si fanno spinte. Va da 0 a 100.</p>
+
+      <div class="rules-h">🃏 Quando peschi una carta</div>
+      <ul class="rlist">
+        <li><span class="e">✅</span><span><b>Fatto</b>: l'hai fatta, si prosegue.</span></li>
+        <li><span class="e">🙅</span><span><b>Rifiuto</b>: salti la sfida ma bevi i sorsi indicati.</span></li>
+        <li><span class="e">🃏</span><span><b>Jolly</b>: se ne hai uno, salti la carta senza bere.</span></li>
+      </ul>
+      <p class="rules-p" style="margin-top:8px">Se una carta dice di <b>lanciare il dado</b> o <b>pescare</b>, il pulsante è già dentro la carta.</p>
+
+      <div class="rules-h">✍️ Crea una carta</div>
+      <p class="rules-p">Sulla casella ✍️ scrivi una carta tutta tua: entra nel mazzo e può capitare a chiunque, anche a te. Appena viene pescata <b>esplode</b> e sparisce. Massimo <b>5</b> in gioco insieme, e hai <b>1 minuto</b> per scriverla.</p>
+
+      <div class="rules-h">🎛️ I tasti in alto</div>
+      <ul class="rlist">
+        <li><span class="e">💞</span><span><b>Vibe</b> (Boys / Misto / Fuori): cambia il tipo di carte.</span></li>
+        <li><span class="e">✨</span><span><b>Standard / Hardcore</b>: quanto spingere.</span></li>
+        <li><span class="e">🏁</span><span><b>Ultimo giro</b>: la partita chiude al prossimo giro completo.</span></li>
+        <li><span class="e">🎲</span><span><b>Sorprese</b>: eventi a caso ogni tanto. 🔊 attiva o spegne l'audio.</span></li>
+      </ul>
+
+      <p class="rules-p" style="margin-top:16px;color:var(--mut)">Regola zero: bevi con la testa e rispetta i limiti di tutti. 💧</p>
+    </div>
+    <button class="btn" data-act="closeRules">Tutto chiaro 👍</button>
   </section>
 
   <!-- GAME -->
@@ -217,6 +283,7 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:-.5px}
     <span class="cat"></span>
     <div class="dots"></div>
     <p class="ctext"></p>
+    <div class="cact"></div>
     <div class="tmr"></div>
     <p class="pen"></p>
     <div class="cbtns"></div>
@@ -473,6 +540,18 @@ window.addEventListener('resize',()=>{ if(document.getElementById('game').classL
 // GAME
 function renderDie(n){ const d=document.getElementById('die'); let h='';
   for(let i=0;i<9;i++) h+='<i class="pip'+(PIPS[n].includes(i)?'':' off')+'"></i>'; d.innerHTML=h; }
+function renderMini(id,n){ const d=document.getElementById(id); if(!d) return; let h='';
+  for(let i=0;i<9;i++) h+='<i class="pip'+(PIPS[n].includes(i)?'':' off')+'"></i>'; d.innerHTML=h; }
+let cardDieRolling=false;
+function cardDie(){ if(cardDieRolling) return; const d=document.getElementById('cdie'); if(!d) return;
+  cardDieRolling=true; sfx('dice'); buzz(20); let t=0;
+  const iv=setInterval(function(){ renderMini('cdie',1+Math.floor(Math.random()*6));
+    if(++t>7){ clearInterval(iv); renderMini('cdie',1+Math.floor(Math.random()*6)); buzz(30); cardDieRolling=false; } },80); }
+function cardDraw(){ const box=document.getElementById('cdraw'); if(!box) return;
+  const pool=DECK.filter(function(c){ return ['scomode','piccanti','sfide','classici','tempo','trivia'].indexOf(c.cat)>=0 && vibeOk(c); });
+  if(!pool.length) return; const c=pool[Math.floor(Math.random()*pool.length)];
+  sfx('draw'); buzz(20);
+  box.innerHTML='<span class="cdraw-tag">'+CAT[c.cat].emo+' '+CAT[c.cat].nm+'</span>'+c.testo; }
 function boardGeo(){ const b=document.getElementById('board'); const W=b.clientWidth||300; return {c:W/2,R:W/2-16}; }
 function tileXY(i){ const g=S._geo||boardGeo(); const a=(-90+i*(360/28))*Math.PI/180; return {x:g.c+g.R*Math.cos(a), y:g.c+g.R*Math.sin(a)}; }
 function renderBoard(){ const b=document.getElementById('board'); S._geo=boardGeo();
@@ -554,6 +633,18 @@ function showCard(card, meta, badge, duello){
   if(card.timer>0){ tmr.style.display='block';
     tmr.innerHTML='<div class="tnum">'+card.timer+'</div><button class="btn ghost tstart" data-act="startTimer" data-sec="'+card.timer+'">▶ Avvia timer</button>'; }
   else tmr.style.display='none';
+  // ===== AZIONE DENTRO LA CARTA (dado / pesca) =====
+  const act=ov.querySelector('.cact'); act.innerHTML=''; act.style.display='none';
+  const tt=(card.testo||'').toLowerCase();
+  const needDie=/\bdad[oi]\b/.test(tt);
+  const needDraw=/pesc\w*[^.]{0,22}cart[ae]|cart[ae][^.]{0,22}pesc/.test(tt);
+  if(needDie||needDraw){
+    act.style.display='flex'; let h='';
+    if(needDie) h+='<div class="cact-row"><div class="cdie" id="cdie"></div><button class="btn ghost cact-btn" data-act="cardDie">🎲 Lancia il dado</button></div>';
+    if(needDraw) h+='<button class="btn ghost cact-btn" data-act="cardDraw">🃏 Pesca una carta</button><div class="cdraw" id="cdraw"></div>';
+    act.innerHTML=h;
+    if(needDie) renderMini('cdie', 1+Math.floor(Math.random()*6));
+  }
   const pen=ov.querySelector('.pen');
   if(card.pen>0 && !isMalus){ pen.style.display='flex'; pen.innerHTML='Rifiuti? <b>'+card.pen+' sorsi</b>'; }
   else pen.style.display='none';
@@ -640,6 +731,8 @@ function endGame(){ clearInterval(timerIV); clearTimeout(surpriseIV); sfx('jackp
   show('recap');
 }
 function reset(){ clearTimeout(surpriseIV); show('setup'); renderChips(); }
+function openRules(){ show('rules'); }
+function closeRules(){ show('setup'); }
 
 /* ===== DELEGAZIONE EVENTI (sostituisce gli onclick inline) =====
    Gli handler inline onclick="..." non vengono eseguiti in ambienti
@@ -668,6 +761,10 @@ document.addEventListener('click', function(e){
     case 'closeOv': closeOv(); break;
     case 'submitCreate': submitCreate(); break;
     case 'cancelCreate': cancelCreate(false); break;
+    case 'cardDie': cardDie(); break;
+    case 'cardDraw': cardDraw(); break;
+    case 'openRules': openRules(); break;
+    case 'closeRules': closeRules(); break;
   }
 });
 
