@@ -1,613 +1,678 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Party Game - The Ultimate Deck</title>
-    <style>
-        :root {
-            --bg-color: #0f0f12;
-            --card-bg: #1a1a24;
-            --text-color: #ffffff;
-            --text-muted: #a0a0b0;
-            --primary: #ff3e6c;
-            
-            /* Categorie colors */
-            --cat-scomode: #ff2a5f;
-            --cat-piccanti: #ff5e00;
-            --cat-sfide: #8a2be2;
-            --cat-tempo: #00bfff;
-            --cat-trivia: #2ed573;
-            --cat-classici: #ffa500;
-            --cat-bonus: #1e90ff;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GIRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A11;--surface:#15141F;--surface2:#1E1C2B;
+  --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --tx:#F4F2FA;--mut:#A29FB6;--mut2:#6F6C82;
+  --pink:#FF2E8B;--violet:#7A5CFF;--cyan:#2EE6D6;--red:#FF4D4D;
+  --disp:"Bricolage Grotesque",system-ui,sans-serif;--body:"Inter",system-ui,sans-serif;
+  --bs:min(86vw,54vh); --bs:min(86vw,54dvh);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--body);color:var(--tx);
+  background:radial-gradient(1000px 500px at 50% -8%, #1a1430 0%, var(--bg) 55%);overflow:hidden}
+#app{max-width:460px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;
+  padding:clamp(10px,2.4vh,22px) 16px calc(env(safe-area-inset-bottom) + 14px);overflow-y:auto;overflow-x:hidden}
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.on{display:flex}
+h1{font-family:var(--disp);font-weight:800;letter-spacing:-.5px}
+.logo{font-family:var(--disp);font-weight:800;font-size:clamp(32px,8.5vw,46px);letter-spacing:-1px;text-align:center;
+  background:linear-gradient(92deg,var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{text-align:center;color:var(--mut);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.label{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut2);margin-bottom:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:16px;
+  font-family:var(--disp);font-weight:600;font-size:16px;border:none;cursor:pointer;color:#fff;
+  background:linear-gradient(92deg,var(--violet),var(--pink));box-shadow:0 8px 24px -6px rgba(255,46,139,.5)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--line2);box-shadow:none}
+.btn:disabled{opacity:.4}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+/* SETUP */
+.seg{display:flex;background:var(--surface2);border-radius:14px;padding:4px;border:1px solid var(--line)}
+.seg button{flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:500;color:var(--mut);
+  background:transparent;font-family:var(--body);cursor:pointer}
+.seg button.on{background:linear-gradient(92deg,rgba(122,92,255,.95),rgba(255,46,139,.95));color:#fff}
+.vibes{display:flex;gap:8px}
+.vibe{flex:1;border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center;background:var(--surface2);cursor:pointer}
+.vibe .em{font-size:22px}.vibe .nm{font-size:12px;margin-top:6px;color:var(--mut)}
+.vibe.on{border-color:var(--pink);box-shadow:0 0 0 1px var(--pink)}.vibe.on .nm{color:var(--tx)}
+.prow{display:flex;gap:8px}
+.prow input{flex:1;background:var(--surface2);border:1px solid var(--line);border-radius:12px;color:var(--tx);
+  padding:12px;font-family:var(--body);font-size:15px}
+.prow input:focus{outline:none;border-color:var(--violet)}
+.iadd{width:48px;flex:0 0 48px;border-radius:12px;border:1px solid var(--line2);background:var(--surface2);color:var(--tx);font-size:20px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:flex;align-items:center;gap:7px;padding:8px 10px 8px 13px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);font-size:13px}
+.chip b{color:var(--mut2);cursor:pointer;font-weight:400;font-size:15px}
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: min-content;
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
+/* GAME */
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:500;
+  border:1px solid var(--line2);color:var(--mut);background:var(--surface2);cursor:pointer}
+.heat{margin-top:16px}
+.heatbar{height:10px;border-radius:999px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
+.heatfill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--pink) 60%,var(--red));
+  transition:width .5s ease;box-shadow:0 0 16px rgba(255,46,139,.6)}
+.heatrow{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:6px}
+.ghead,.heat,.pbar{flex-shrink:0}
+.gmain{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;justify-content:space-evenly;align-items:center;gap:8px}
+#board{position:relative;width:var(--bs);height:var(--bs);margin:0}
+.track{position:absolute;inset:14px;border-radius:50%;border:1px dashed var(--line2)}
+.tile{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid;background:var(--surface2);font-size:13px;transition:all .25s ease}
+.tile.here{font-size:17px;z-index:2}
+.bc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;pointer-events:none}
+.bc .big{font-family:var(--disp);font-weight:800;font-size:22px}
+.bc .sub{font-size:12px;color:var(--mut)}
+.center{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:2px}
+.who{font-family:var(--disp);font-weight:800;font-size:clamp(18px,5vw,24px);text-align:center}
+.who small{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.die{width:clamp(72px,19vw,90px);height:clamp(72px,19vw,90px);border-radius:22px;background:var(--surface2);border:1px solid var(--line2);
+  display:grid;grid-template-columns:repeat(3,1fr);padding:14px;gap:5px;box-shadow:0 0 26px -8px rgba(122,92,255,.6)}
+.die.roll{animation:tumble .45s ease-in-out infinite}
+@keyframes tumble{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}
+.pip{align-self:center;justify-self:center;width:13px;height:13px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--cyan));box-shadow:0 0 8px var(--cyan)}
+.pip.off{background:transparent;box-shadow:none}
 
-        .container {
-            width: 100%;
-            max-width: 450px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+/* OVERLAY CARD */
+#overlay{position:absolute;inset:0;background:rgba(5,4,12,.78);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:22px;z-index:20}
+#overlay.show{display:flex;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.card{--cc:var(--pink);width:100%;max-width:400px;border-radius:26px;padding:clamp(18px,5vw,24px);min-height:min(58dvh,440px);display:flex;flex-direction:column;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--cc) 18%,var(--surface2)),var(--surface2) 45%);
+  border:1px solid color-mix(in srgb,var(--cc) 55%,transparent);
+  box-shadow:0 0 50px -14px var(--cc);animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
+.cat{align-self:flex-start;padding:7px 13px;border-radius:999px;font-family:var(--disp);font-weight:600;font-size:13px;
+  color:var(--cc);background:color-mix(in srgb,var(--cc) 18%,transparent);border:1px solid color-mix(in srgb,var(--cc) 50%,transparent)}
+.dots{display:flex;gap:5px;margin-top:14px}
+.dots span{width:20px;height:5px;border-radius:3px;background:rgba(255,255,255,.14)}
+.dots span.on{background:var(--cc);box-shadow:0 0 8px var(--cc)}
+.ctext{font-family:var(--disp);font-weight:800;font-size:clamp(20px,6.2vw,28px);line-height:1.18;margin:auto 0;letter-spacing:-.5px}
+.pen{font-size:13px;color:var(--mut);display:flex;gap:7px;margin-bottom:14px}.pen b{color:var(--red);font-weight:600}
+.cbtns{display:flex;gap:10px;flex-wrap:wrap}.cbtns .btn{flex:1;min-width:120px;font-size:15px;padding:14px}
 
-        header {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(45deg, #ff3e6c, #ff5e00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Schermata di Setup */
-        .setup-panel {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #2a2a3a;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .setup-panel h3 {
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .vibe-selector {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .vibe-btn {
-            background: #252535;
-            border: 2px solid transparent;
-            color: var(--text-muted);
-            padding: 12px 5px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-
-        .vibe-btn.active {
-            background: rgba(255, 62, 108, 0.15);
-            border-color: var(--primary);
-            color: #fff;
-        }
-
-        .start-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #ff3e6c, #ff5e00);
-            border: none;
-            color: white;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 62, 108, 0.4);
-            transition: transform 0.1s ease;
-        }
-
-        .start-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Schermata Gioco */
-        .game-panel {
-            display: none;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 30px 24px;
-            min-height: 280px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
-            border: 1px solid #2a2a3a;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            position: relative;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .badge {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            color: #fff;
-        }
-
-        .heat-container {
-            display: flex;
-            gap: 3px;
-        }
-
-        .fire-icon {
-            color: #555565;
-            font-size: 1.1rem;
-        }
-
-        .fire-icon.active {
-            color: #ff5e00;
-        }
-
-        .card-main {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .card-text {
-            font-size: 1.35rem;
-            font-weight: 600;
-            line-height: 1.5;
-        }
-
-        .target-text {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: #222232;
-            padding: 4px 10px;
-            border-radius: 6px;
-        }
-
-        .timer-display {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--cat-tempo);
-            font-variant-numeric: tabular-nums;
-            margin: 10px 0;
-            display: none;
-        }
-
-        .trivia-answer {
-            background: #222232;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            border: 1px dashed #44445c;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .trivia-answer span {
-            filter: blur(5px);
-            transition: filter 0.2s ease;
-        }
-
-        .trivia-answer.revealed span {
-            filter: blur(0);
-        }
-
-        .card-footer {
-            width: 100%;
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .penalty-badge {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255, 0, 0, 0.3);
-            color: #ff4d4d;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        /* Regole di Gruppo Attive */
-        .rules-panel {
-            background: #15151f;
-            border-radius: 16px;
-            padding: 15px;
-            border: 1px solid #222232;
-            display: none;
-        }
-
-        .rules-panel h4 {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .rule-item {
-            font-size: 0.95rem;
-            color: #ffa500;
-            font-weight: 500;
-            background: rgba(255, 165, 0, 0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border-left: 3px solid #ffa500;
-        }
-
-        /* Controlli Gioco */
-        .controls {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .btn-secondary {
-            background: #252535;
-            border: 1px solid #3a3a4a;
-            color: white;
-            padding: 16px;
-            border-radius: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-main {
-            flex-grow: 1;
-            background: linear-gradient(135deg, #00bfff, #8a2be2);
-            border: none;
-            color: white;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
-        }
-
-        .btn-main:disabled {
-            background: #333;
-            color: #666;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .counter-tokens {
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-    </style>
+/* RECAP */
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:14px;
+  background:var(--surface2);border:1px solid var(--line);margin-bottom:8px}
+.rrow .n{font-family:var(--disp);font-weight:600}.rrow .s{color:var(--pink);font-weight:600}
+.rrow.first{border-color:var(--pink);box-shadow:0 0 0 1px var(--pink)}
+.tmr{margin:14px 0;text-align:center;display:none}
+.tnum{font-family:var(--disp);font-weight:800;font-size:54px;line-height:1;color:var(--cc);text-shadow:0 0 20px var(--cc)}
+.tnum.warn{color:var(--red);text-shadow:0 0 20px var(--red);animation:tpulse .5s ease infinite}
+@keyframes tpulse{50%{transform:scale(1.12)}}
+.tstart{margin:10px auto 0;max-width:200px}
+.cft{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;z-index:25;animation:fall 1.5s ease-in forwards}
+@keyframes fall{to{transform:translateY(120vh) rotate(540deg);opacity:.2}}
+.flash{position:absolute;inset:0;z-index:30;pointer-events:none;animation:flf .4s ease-out forwards}
+@keyframes flf{0%{opacity:.55}100%{opacity:0}}
+#heatglow{position:absolute;inset:0;z-index:0;pointer-events:none;transition:background .6s ease}
+.screen{position:relative;z-index:1}
+.heat{position:relative}
+.htoast{position:absolute;right:4px;top:-4px;color:var(--pink);font-weight:600;font-size:13px;pointer-events:none;animation:htf .9s ease-out forwards}
+@keyframes htf{to{transform:translateY(-20px);opacity:0}}
+.pedina{position:absolute;width:18px;height:18px;border-radius:50%;z-index:5;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--cyan));box-shadow:0 0 14px var(--cyan),0 0 4px #fff;
+  transition:left .16s linear,top .16s linear;animation:ppulse 1.5s ease-in-out infinite}
+@keyframes ppulse{50%{box-shadow:0 0 24px var(--cyan),0 0 7px #fff}}
+.pbar{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;-webkit-overflow-scrolling:touch}
+.pbar::-webkit-scrollbar{display:none}
+.pchip{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line)}
+.pchip.cur{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan);background:#202a36}
+.pchip .pr{font-family:var(--disp);font-weight:700;font-size:12px;color:var(--mut2);min-width:12px}
+.pchip .pn{font-size:13px;color:#D7D5E2;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pchip .ps{font-family:var(--disp);font-weight:700;font-size:14px;color:var(--pink);white-space:nowrap}
+#createOv{position:absolute;inset:0;background:rgba(5,4,12,.86);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+#createOv.show{display:flex;animation:fade .2s ease}
+#createOv .card{--cc:#C77DFF}
+.csub{font-size:13px;color:var(--mut);text-align:center;line-height:1.4;margin-top:4px}
+.cardInput{width:100%;min-height:118px;resize:none;background:var(--surface2);border:1px solid var(--line2);border-radius:14px;color:var(--tx);font-family:var(--disp);font-weight:700;font-size:18px;line-height:1.3;padding:14px;margin:14px 0 10px;box-sizing:border-box}
+.cardInput:focus{outline:none;border-color:var(--violet)}
+.ctimer{text-align:center;font-family:var(--disp);font-weight:800;font-size:13px;color:var(--mut2);margin-bottom:12px;letter-spacing:.3px}
+.ctimer.warn{color:var(--red)}
+</style>
 </head>
 <body>
+<div id="app">
+  <div id="heatglow"></div>
 
-    <div class="container">
-        <header>
-            <h1>The Ultimate Deck</h1>
-        </header>
-
-        <div class="setup-panel" id="setupPanel">
-            <h3>Seleziona il Vibe della serata:</h3>
-            <div class="vibe-selector">
-                <button class="vibe-btn active" onclick="toggleVibe(this, 'misto')">Misto</button>
-                <button class="vibe-btn" onclick="toggleVibe(this, 'boys')">Boys</button>
-                <button class="vibe-btn" onclick="toggleVibe(this, 'fuori')">Fuori</button>
-            </div>
-            <button class="start-btn" onclick="startGame()">AVVIA PARTITA</button>
-        </div>
-
-        <div class="game-panel" id="gamePanel">
-            <div class="card" id="cardContainer">
-                <div class="card-header">
-                    <span class="badge" id="cardCategory">Categoria</span>
-                    <div class="heat-container" id="cardHeat"></div>
-                </div>
-
-                <div class="card-main">
-                    <span class="target-text" id="cardTarget">Self</span>
-                    <p class="card-text" id="cardText">Pesca la prima carta per iniziare a giocare!</p>
-                    
-                    <div class="timer-display" id="timerDisplay">00</div>
-                    
-                    <div class="trivia-answer" id="triviaBox" style="display:none;" onclick="revealTrivia()">
-                        Controlla Risposta: <span id="triviaAnswer">Risposta</span>
-                    </div>
-                </div>
-
-                <div class="card-footer" id="cardFooter">
-                    <div class="penalty-badge" id="cardPenalty">Sorsi: 2</div>
-                </div>
-            </div>
-
-            <div class="rules-panel" id="rulesPanel">
-                <h4>Regola attiva nel gruppo:</h4>
-                <div class="rule-item" id="ruleText">Nessuna</div>
-            </div>
-
-            <div class="controls">
-                <button class="btn-secondary" onclick="resetGame()">Reset</button>
-                <button class="btn-main" id="nextBtn" onclick="nextCard()">PESCA CARTA</button>
-            </div>
-
-            <div class="counter-tokens" id="deckCounter">Carte rimanenti: 0</div>
-        </div>
+  <!-- SETUP -->
+  <section class="screen on" id="setup">
+    <div class="logo">GIRO</div>
+    <div class="tag">tira · pesca · bevi</div>
+    <div style="margin-top:30px">
+      <p class="label">Modalità</p>
+      <div class="seg" id="segMode">
+        <button data-m="standard" class="on">Standard</button>
+        <button data-m="hardcore">Hardcore</button>
+      </div>
     </div>
+    <div style="margin-top:24px">
+      <p class="label">Vibe</p>
+      <div class="vibes" id="vibes">
+        <div class="vibe" data-v="boys"><div class="em">🔥</div><div class="nm">Boys</div></div>
+        <div class="vibe on" data-v="misto"><div class="em">💞</div><div class="nm">Misto</div></div>
+        <div class="vibe" data-v="fuori"><div class="em">🍸</div><div class="nm">Fuori</div></div>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <p class="label">Giocatori</p>
+      <div class="prow">
+        <input id="pin" placeholder="Aggiungi un nome" maxlength="14">
+        <button class="iadd" data-act="addP">+</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn" data-act="start">Inizia la serata</button>
+  </section>
 
-    <script>
-        const DECK = [
-          // SCOMODE
-          {"id": "scm_01", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Mostra l'ultima foto che hai ricevuto nei DM.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_02", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "scelto", "testo": "Chi a tavola ti ha deluso di piu nell'ultimo anno? Dillo guardandolo.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_03", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "La figura peggiore che hai fatto da ubriaco. Tutta.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_04", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Apri l'ultima chat e leggi ad alta voce l'ultimo messaggio. Senza saltare.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_05", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Chi tra i presenti ti ha fatto effetto la prima volta? Indicalo.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_06", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Il tuo bodycount. Numero vero, niente bugie.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_07", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Chi e la tua ultima cotta su Instagram? Mostra il profilo.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_09", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "gruppo", "testo": "Mostra le ultime 3 ricerche su Google. Senza censura.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_10", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "scelto", "testo": "La prima cosa che pensasti la prima volta che hai visto chi e alla tua sinistra.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_11", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Il segreto piu grosso che il gruppo non sa di te. Spara.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_12", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Una cosa di cui ti vergogni del passato. Rifaresti?", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_13", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "gruppo", "testo": "Ordina i presenti dal piu al meno affidabile. Ad alta voce.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_14", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "self", "testo": "Il momento piu hot della tua vita in 3 frasi. Quanto osi tu.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_15", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "self", "testo": "Qual è la cosa più imbarazzante che hai cercato in incognito sul browser nell'ultimo mese?", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_16", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "self", "testo": "Sei mai stato attratto/a dal partner di uno dei tuoi migliori amici qui presenti? Chi?", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_17", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "self", "testo": "Qual è il sogno erotico più bizzarro che hai fatto e che non hai mai raccontato a nessuno?", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_18", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Hai mai mandato un messaggio 'hot' o una foto compromettente e ti sei pentito/a un secondo dopo? A chi era diretto?", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_19", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Hai mai finto un orgasmo o mentito spudoratamente sulle tue prestazioni per non ferire l'orgoglio di qualcuno?", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_20", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Chi è stata l'ultima persona che hai 'stalkerato' pesantemente sui social prima di venire qui?", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "scm_21", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Cronologia live: Apri la galleria del tuo telefono o la cronologia di Instagram e mostra i primi 5 elementi al giocatore alla tua sinistra.", "pen": 4, "timer": 0, "risp": "", "regola": ""},
+  <!-- GAME -->
+  <section class="screen" id="game">
+    <div class="ghead" style="flex-wrap:wrap;gap:6px">
+      <span class="pill" id="pillVibe" data-act="cycleVibe"></span>
+      <span class="pill" id="pillMode" data-act="toggleMode"></span>
+      <span class="pill" id="pillLast" data-act="lastLap">🏁 Ultimo giro</span>
+      <span class="pill" id="pillSnd" data-act="toggleSnd">🔊</span>
+      <span class="pill" id="pillSurp" data-act="toggleSurprise">🎲 Sorprese</span>
+    </div>
+    <div class="heat">
+      <div class="heatbar"><div class="heatfill" id="heatfill" style="width:55%"></div></div>
+      <div class="heatrow"><span>Heat</span><span id="heatval">55</span></div>
+    </div>
+    <div class="pbar" id="players"></div>
+    <div class="gmain">
+    <div id="board"><div class="track"></div>
+      <div class="bc"><div class="big" id="bcN">0</div><div class="sub" id="bcS">giro 1</div></div>
+    </div>
+    <div class="center">
+      <div class="who"><small>Tocca a</small><span id="who">—</span></div>
+      <div class="die" id="die"></div>
+      <button class="btn" id="rollBtn" data-act="roll" style="max-width:240px">Tira il dado</button>
+    </div>
+    </div>
+  </section>
 
-          // PICCANTI
-          {"id": "pic_01", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 2, "tipo": "timer", "target": "scelto", "testo": "Fissa negli occhi chi vuoi per 15s senza ridere. Chi cede beve.", "pen": 2, "timer": 15, "risp": "", "regola": ""},
-          {"id": "pic_02", "cat": "piccanti", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Chi del gruppo ti ha fatto la miglior prima impressione?", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_04", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Bacio a stampo alla persona piu attraente del tavolo. O 3 sorsi.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_05", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Sussurra all'orecchio del vicino la cosa piu audace che ti passa per la testa.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_06", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "timer", "target": "gruppo", "testo": "Balla in modo sexy 15s davanti al gruppo. O 3 sorsi.", "pen": 3, "timer": 15, "risp": "", "regola": ""},
-          {"id": "pic_07", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "gruppo", "testo": "Kiss, Marry, Avoid tra tre presenti a scelta del gruppo.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_08", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "La cosa piu audace che diresti ad alta voce: dilla, quanto osi tu.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_09", "cat": "piccanti", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "A chi del tavolo manderesti un messaggio alle 2 di notte? Di' il nome.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_10", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "scelto", "testo": "Fai un complimento spinto a chi vuoi, guardandolo negli occhi.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_11", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "timer", "target": "coppia", "testo": "Tu e chi vuoi: 10s di sguardo intenso senza ridere. Chi cede beve doppio.", "pen": 2, "timer": 10, "risp": "", "regola": ""},
-          {"id": "pic_12", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Siediti in braccio a un presente per un giro intero. O bevi 4.", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_13", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Bacio a stampo con chi vuoi al tavolo. O 4 sorsi.", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_14", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "timer", "target": "scelto", "testo": "Lap dance scherzosa di 10s a chi vuoi. O 4 sorsi.", "pen": 4, "timer": 10, "risp": "", "regola": ""},
-          {"id": "pic_15", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Se dovessi scegliere una persona in questa stanza per un'avventura di una notte senza conseguenze, chi sceglieresti?", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_16", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "self", "testo": "Qual è il posto più folle o proibito in cui hai consumato un rapporto intimo?", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_17", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Body shot: Bevi uno shot dal collo o dall'ombelico della persona seduta di fronte a te.", "pen": 5, "timer": 0, "risp": "", "regola": ""},
-          {"id": "pic_18", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "timer", "target": "gruppo", "testo": "Il bacio al buio: Bendati. Gli altri giocatori sceglieranno una persona che dovrà darti un bacio sul collo o sulle labbra. Poi devi indovinare chi è.", "pen": 4, "timer": 60, "risp": "", "regola": ""},
-          {"id": "pic_19", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "timer", "target": "scelto", "testo": "Lap Dance flash: Fai una lap dance di 30 secondi alla persona che ritieni più attraente del gruppo, usando una sedia.", "pen": 5, "timer": 30, "risp": "", "regola": ""},
+  <!-- RECAP -->
+  <section class="screen" id="recap">
+    <h1 style="font-size:30px;margin-bottom:4px">Fine serata</h1>
+    <p style="color:var(--mut);font-size:14px;margin-bottom:20px">Chi ha bevuto di più stasera.</p>
+    <div id="rlist" style="flex:1;overflow:auto"></div>
+    <button class="btn" data-act="reset">Nuova partita</button>
+  </section>
 
-          // SFIDE
-          {"id": "sfd_01", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Imita uno del gruppo finche non lo indovinano. 30s.", "pen": 3, "timer": 30, "risp": "", "regola": ""},
-          {"id": "sfd_02", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Parla con accento straniero finche non e di nuovo il tuo turno.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_03", "cat": "sfide", "vibe": ["boys"], "heat": 3, "tipo": "statica", "target": "coppia", "testo": "Braccio di ferro col vicino di destra. Chi perde, doppio sorso.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_04", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Vai da uno sconosciuto, digli che e molto carino e chiedigli l'Instagram. Riesci? 1 sorso a chi vuoi. Fallisci? Bevi 2.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_05", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Canta il ritornello dell'ultima canzone che hai ascoltato. In piedi.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_07", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Resta in equilibrio su una gamba per tutto il giro. Tocchi terra? Bevi.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_08", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Posta una storia con la faccia piu seria del mondo e un saluto a caso.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_09", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Imita un personaggio famoso, gli altri indovinano. 20s.", "pen": 2, "timer": 20, "risp": "", "regola": ""},
-          {"id": "sfd_10", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Telefona a un amico non presente e digli 'ti voglio bene' senza spiegare.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_11", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Fai 10 flessioni adesso. O bevi 3.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_12", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Parla con la voce di un cartone finche non e di nuovo il tuo turno.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_13", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 4, "tipo": "timer", "target": "scelto", "testo": "Il gioco del ghiaccio: Fatti infilare un cubetto di ghiaccio nei pantaloni da un giocatore a tua scelta e lascialo sciogliere lì per 30 secondi.", "pen": 5, "timer": 30, "risp": "", "regola": ""},
-          {"id": "sfd_14", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 4, "tipo": "statica", "target": "self", "testo": "Hot Text: Manda un messaggio al terzo contatto recente della tua rubrica con scritto: 'Ti va di fare una follia stasera?' (senza spiegazioni fino a fine gioco).", "pen": 4, "timer": 0, "risp": "", "regola": ""},
-          {"id": "sfd_15", "cat": "sfide", "vibe": ["misto", "fuori"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Scambio di outfit: Scambiati un capo d'abbigliamento (maglia o camicia) con la persona del sesso opposto più vicina a te per i próximos 3 giri.", "pen": 4, "timer": 0, "risp": "", "regola": ""},
+  <!-- CARD OVERLAY -->
+  <div id="overlay"><div class="card">
+    <span class="cat"></span>
+    <div class="dots"></div>
+    <p class="ctext"></p>
+    <div class="tmr"></div>
+    <p class="pen"></p>
+    <div class="cbtns"></div>
+  </div></div>
 
-          // TEMPO
-          {"id": "tmp_02", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Conta da 30 a 0 a salti di 3, senza sbagliare. 15s.", "pen": 2, "timer": 15, "risp": "", "regola": ""},
-          {"id": "tmp_03", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "gruppo", "testo": "L'ultimo a toccarsi il naso beve. ...ORA!", "pen": 1, "timer": 3, "risp": "", "regola": ""},
-          {"id": "tmp_05", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Di' l'alfabeto al contrario. 20s.", "pen": 2, "timer": 20, "risp": "", "regola": ""},
-          {"id": "tmp_06", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Scioglilingua: 'tre tigri contro tre tigri' x3, veloce.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "tmp_07", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "gruppo", "testo": "Categoria marche di auto: a turno, chi si blocca in 3s beve.", "pen": 1, "timer": 3, "risp": "", "regola": ""},
-          {"id": "tmp_08", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Ripeti la sequenza di 4 parole che dice il gruppo. Sbagli? Bevi.", "pen": 2, "timer": 0, "risp": "", "regola": ""},
-          {"id": "tmp_09", "cat": "tempo", "vibe": ["boys", "misto"], "heat": 3, "tipo": "timer", "target": "scelto", "testo": "Sfida di sguardi col vicino: il primo che ride beve. 15s.", "pen": 1, "timer": 15, "risp": "", "regola": ""},
+  <!-- CREATE CARD OVERLAY -->
+  <div id="createOv"><div class="card">
+    <span class="cat">✍️ Crea una carta</span>
+    <p class="csub"></p>
+    <textarea id="cardText" class="cardInput" maxlength="180" placeholder="Scrivi una sfida, una domanda o una penitenza…"></textarea>
+    <div class="ctimer" id="ctimer">60</div>
+    <div class="cbtns">
+      <button class="btn ghost" data-act="cancelCreate">Annulla</button>
+      <button class="btn" data-act="submitCreate">Aggiungi 💥</button>
+    </div>
+  </div></div>
 
-          // TRIVIA
-          {"id": "trv_03", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "gruppo", "testo": "Chi nomina piu capitali europee in 30s vince, gli altri bevono.", "pen": 1, "timer": 30, "risp": "", "regola": ""},
-          {"id": "trv_07", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "Quanti tasti neri ha un'ottava di pianoforte?", "pen": 2, "timer": 0, "risp": "5", "regola": ""},
-          {"id": "trv_09", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "In che anno l'Italia ha vinto l'ultimo Mondiale?", "pen": 2, "timer": 0, "risp": "2006", "regola": ""},
-          {"id": "trv_11", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "Quanti anni dura il mandato del Presidente della Repubblica italiana?", "pen": 2, "timer": 0, "risp": "7", "regola": ""},
-          {"id": "trv_12", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "gruppo", "testo": "Stima: quanti km separano Torino da Napoli? Il piu vicino fa bere gli altri.", "pen": 1, "timer": 0, "risp": "Circa 900 km", "regola": ""},
-          {"id": "trv_14", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "In che film c'e la frase 'Houston, abbiamo un problema'?", "pen": 2, "timer": 0, "risp": "Apollo 13", "regola": ""},
+</div>
+<script>
+const DECK = [
+  // ===== SCOMODE =====
+  {"id":"scm_01","cat":"scomode","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"Mostra l'ultima foto che hai ricevuto nei DM.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_02","cat":"scomode","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"scelto","testo":"Chi a tavola ti ha deluso di piu nell'ultimo anno? Dillo guardandolo.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_03","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"self","testo":"La figura peggiore che hai fatto da ubriaco. Tutta.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"scm_04","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"self","testo":"Apri l'ultima chat e leggi ad alta voce l'ultimo messaggio. Senza saltare.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_05","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"scelto","testo":"Chi tra i presenti ti ha fatto effetto la prima volta? Indicalo.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_06","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"self","testo":"Il tuo bodycount. Numero vero, niente bugie.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_07","cat":"scomode","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"Chi e la tua ultima cotta su Instagram? Mostra il profilo.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"scm_09","cat":"scomode","vibe":["boys","misto"],"heat":2,"tipo":"statica","target":"gruppo","testo":"Mostra le ultime 3 ricerche su Google. Senza censura.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_10","cat":"scomode","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"scelto","testo":"La prima cosa che pensasti la prima volta che hai visto chi e alla tua sinistra.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"scm_11","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"self","testo":"Il segreto piu grosso che il gruppo non sa di te. Spara.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_12","cat":"scomode","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"Una cosa di cui ti vergogni del passato. Rifaresti?","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"scm_13","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"gruppo","testo":"Ordina i presenti dal piu al meno affidabile. Ad alta voce.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"scm_14","cat":"scomode","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"self","testo":"Il momento piu hot della tua vita in 3 frasi. Quanto osi tu.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_15","cat":"scomode","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"self","testo":"Qual è la cosa più imbarazzante che hai cercato in incognito sul browser nell'ultimo mese?","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"scm_16","cat":"scomode","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"self","testo":"Sei mai stato attratto/a dal partner di uno dei tuoi migliori amici qui presenti? Chi?","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"scm_17","cat":"scomode","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"self","testo":"Qual è il sogno erotico più bizzarro che hai fatto e che non hai mai raccontato a nessuno?","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"scm_18","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"self","testo":"Hai mai mandato un messaggio 'hot' o una foto compromettente e ti sei pentito/a un secondo dopo? A chi era diretto?","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_19","cat":"scomode","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"self","testo":"Hai mai finto un orgasmo o mentito spudoratamente sulle tue prestazioni per non ferire l'orgoglio di qualcuno?","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_20","cat":"scomode","vibe":["boys","misto"],"heat":2,"tipo":"statica","target":"self","testo":"Chi è stata l'ultima persona che hai 'stalkerato' pesantemente sui social prima di venire qui?","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"scm_21","cat":"scomode","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"scelto","testo":"Cronologia live: apri la galleria del telefono o la cronologia di Instagram e mostra i primi 5 elementi al giocatore alla tua sinistra.","pen":4,"timer":0,"risp":"","regola":""},
 
-          // CLASSICI
-          {"id": "cls_01", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "CASCATA. Si beve in sequenza: smetti solo quando smette chi ti sta prima.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "cls_02", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "IO NON HO MAI... chi l'ha fatto beve. Inizia chi ha pescato.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "cls_04", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "CATEGORIE: il gruppo sceglie un tema, uno a testa a giro. Chi si blocca beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "cls_05", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "REGOLA: vietato dire 'si' e 'no' fino al prossimo giro. Chi sbaglia, sorso.", "pen": 0, "timer": 0, "risp": "", "regola": "Vietato dire si e no fino al prossimo giro"},
-          {"id": "cls_06", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "NUMERO PROIBITO: si conta a giro, vietato il 7 e i multipli. Sbagli? Bevi.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "cls_07", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "ROSSO O NERO: indovini il colore della prossima carta? Distribuisci un sorso. Sbagli? Bevi.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "cls_08", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "REGINA: chi pesca comanda per un giro, tutti devono imitarlo.", "pen": 0, "timer": 0, "risp": "", "regola": "Imita il capo (Regina) per un intero giro"},
-          
-          // BONUS
-          {"id": "bon_01", "cat": "bonus", "vibe": ["boys", "misto"], "heat": 3, "tipo": "gruppo", "target": "gruppo", "testo": "DOMANDA DI GRUPPO. Mani alzate: chi l'ha gia combinata in un posto pubblico? La minoranza beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "bon_02", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "TUTTI QUELLI CHE hanno un ex ancora tra i contatti... bevono.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "bon_03", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "VOTAZIONE. Chi rimorchierebbe meglio stasera? Il piu votato fa un cul sec.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "bon_04", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "BRINDISI. Tutti in piedi, si brinda e si beve insieme.", "pen": 0, "timer": 0, "risp": "", "regola": ""},
-          {"id": "bon_05", "cat": "bonus", "vibe": ["boys", "misto"], "heat": 3, "tipo": "gruppo", "target": "gruppo", "testo": "DOMANDA DI GRUPPO. Chi ha mandato un messaggio bollente questa settimana? Minoranza beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}
-        ];
+  // ===== PICCANTI =====
+  {"id":"pic_01","cat":"piccanti","vibe":["boys","misto"],"heat":2,"tipo":"timer","target":"scelto","testo":"Fissa negli occhi chi vuoi per 15s senza ridere. Chi cede beve.","pen":2,"timer":15,"risp":"","regola":""},
+  {"id":"pic_02","cat":"piccanti","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"Chi del gruppo ti ha fatto la miglior prima impressione?","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"pic_04","cat":"piccanti","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"scelto","testo":"Bacio a stampo alla persona piu attraente del tavolo. O 3 sorsi.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"pic_05","cat":"piccanti","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"scelto","testo":"Sussurra all'orecchio del vicino la cosa piu audace che ti passa per la testa.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"pic_06","cat":"piccanti","vibe":["boys","misto"],"heat":3,"tipo":"timer","target":"gruppo","testo":"Balla in modo sexy 15s davanti al gruppo. O 3 sorsi.","pen":3,"timer":15,"risp":"","regola":""},
+  {"id":"pic_07","cat":"piccanti","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"gruppo","testo":"Kiss, Marry, Avoid tra tre presenti a scelta del gruppo.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"pic_08","cat":"piccanti","vibe":["boys","misto"],"heat":3,"tipo":"statica","target":"self","testo":"La cosa piu audace che diresti ad alta voce: dilla, quanto osi tu.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"pic_09","cat":"piccanti","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"A chi del tavolo manderesti un messaggio alle 2 di notte? Di' il nome.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"pic_10","cat":"piccanti","vibe":["boys","misto"],"heat":2,"tipo":"statica","target":"scelto","testo":"Fai un complimento spinto a chi vuoi, guardandolo negli occhi.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"pic_11","cat":"piccanti","vibe":["boys","misto"],"heat":3,"tipo":"timer","target":"coppia","testo":"Tu e chi vuoi: 10s di sguardo intenso senza ridere. Chi cede beve doppio.","pen":2,"timer":10,"risp":"","regola":""},
+  {"id":"pic_12","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"scelto","testo":"Siediti in braccio a un presente per un giro intero. O bevi 4.","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"pic_13","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"scelto","testo":"Bacio a stampo con chi vuoi al tavolo. O 4 sorsi.","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"pic_14","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"timer","target":"scelto","testo":"Lap dance scherzosa di 10s a chi vuoi. O 4 sorsi.","pen":4,"timer":10,"risp":"","regola":""},
+  {"id":"pic_15","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"scelto","testo":"Se dovessi scegliere una persona in questa stanza per un'avventura di una notte senza conseguenze, chi sceglieresti?","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"pic_16","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"self","testo":"Qual è il posto più folle o proibito in cui hai consumato un rapporto intimo?","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"pic_17","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"statica","target":"scelto","testo":"Body shot: bevi uno shot dal collo o dall'ombelico della persona seduta di fronte a te.","pen":5,"timer":0,"risp":"","regola":""},
+  {"id":"pic_18","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"timer","target":"gruppo","testo":"Il bacio al buio: bendati. Gli altri scelgono chi ti darà un bacio sul collo o sulle labbra. Poi indovina chi è.","pen":4,"timer":60,"risp":"","regola":""},
+  {"id":"pic_19","cat":"piccanti","vibe":["boys","misto"],"heat":4,"tipo":"timer","target":"scelto","testo":"Lap dance flash: 30 secondi alla persona che ritieni più attraente del gruppo, usando una sedia.","pen":5,"timer":30,"risp":"","regola":""},
 
-        let activeVibes = ['misto'];
-        let currentDeck = [];
-        let timerInterval = null;
+  // ===== SFIDE =====
+  {"id":"sfd_01","cat":"sfide","vibe":["boys","misto"],"heat":2,"tipo":"timer","target":"self","testo":"Imita uno del gruppo finche non lo indovinano. 30s.","pen":3,"timer":30,"risp":"","regola":""},
+  {"id":"sfd_02","cat":"sfide","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"Parla con accento straniero finche non e di nuovo il tuo turno.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_03","cat":"sfide","vibe":["boys"],"heat":3,"tipo":"statica","target":"coppia","testo":"Braccio di ferro col vicino di destra. Chi perde, doppio sorso.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_04","cat":"sfide","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"Vai da uno sconosciuto, digli che e molto carino e chiedigli l'Instagram. Riesci? 1 sorso a chi vuoi. Fallisci? Bevi 2.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_05","cat":"sfide","vibe":["boys","misto"],"heat":2,"tipo":"statica","target":"self","testo":"Canta il ritornello dell'ultima canzone che hai ascoltato. In piedi.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_07","cat":"sfide","vibe":["boys","misto"],"heat":2,"tipo":"statica","target":"self","testo":"Resta in equilibrio su una gamba per tutto il giro. Tocchi terra? Bevi.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_08","cat":"sfide","vibe":["boys","misto","fuori"],"heat":3,"tipo":"statica","target":"self","testo":"Posta una storia con la faccia piu seria del mondo e un saluto a caso.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_09","cat":"sfide","vibe":["boys","misto","fuori"],"heat":2,"tipo":"timer","target":"self","testo":"Imita un personaggio famoso, gli altri indovinano. 20s.","pen":2,"timer":20,"risp":"","regola":""},
+  {"id":"sfd_10","cat":"sfide","vibe":["boys","misto","fuori"],"heat":3,"tipo":"statica","target":"self","testo":"Telefona a un amico non presente e digli 'ti voglio bene' senza spiegare.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_11","cat":"sfide","vibe":["boys","misto"],"heat":2,"tipo":"statica","target":"self","testo":"Fai 10 flessioni adesso. O bevi 3.","pen":3,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_12","cat":"sfide","vibe":["boys","misto","fuori"],"heat":2,"tipo":"statica","target":"self","testo":"Parla con la voce di un cartone finche non e di nuovo il tuo turno.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_13","cat":"sfide","vibe":["boys","misto"],"heat":4,"tipo":"timer","target":"scelto","testo":"Il gioco del ghiaccio: fatti infilare un cubetto di ghiaccio sotto la maglia da un giocatore a scelta e lascialo sciogliere per 30s.","pen":5,"timer":30,"risp":"","regola":""},
+  {"id":"sfd_14","cat":"sfide","vibe":["boys","misto","fuori"],"heat":4,"tipo":"statica","target":"self","testo":"Hot text: manda al terzo contatto recente della rubrica 'Ti va di fare una follia stasera?' (niente spiegazioni fino a fine gioco).","pen":4,"timer":0,"risp":"","regola":""},
+  {"id":"sfd_15","cat":"sfide","vibe":["misto","fuori"],"heat":4,"tipo":"statica","target":"scelto","testo":"Scambio di outfit: scambia un capo (maglia o camicia) con la persona del sesso opposto più vicina per i prossimi 3 giri.","pen":4,"timer":0,"risp":"","regola":""},
 
-        function toggleVibe(element, vibe) {
-            if (activeVibes.includes(vibe)) {
-                if (activeVibes.length > 1) {
-                    activeVibes = activeVibes.filter(v => v !== vibe);
-                    element.classList.remove('active');
-                }
-            } else {
-                activeVibes.push(vibe);
-                element.classList.add('active');
-            }
-        }
+  // ===== TEMPO =====
+  {"id":"tmp_02","cat":"tempo","vibe":["boys","misto","fuori"],"heat":2,"tipo":"timer","target":"self","testo":"Conta da 30 a 0 a salti di 3, senza sbagliare. 15s.","pen":2,"timer":15,"risp":"","regola":""},
+  {"id":"tmp_03","cat":"tempo","vibe":["boys","misto","fuori"],"heat":2,"tipo":"timer","target":"gruppo","testo":"L'ultimo a toccarsi il naso beve. ...ORA!","pen":1,"timer":3,"risp":"","regola":""},
+  {"id":"tmp_05","cat":"tempo","vibe":["boys","misto","fuori"],"heat":2,"tipo":"timer","target":"self","testo":"Di' l'alfabeto al contrario. 20s.","pen":2,"timer":20,"risp":"","regola":""},
+  {"id":"tmp_06","cat":"tempo","vibe":["boys","misto","fuori"],"heat":2,"tipo":"timer","target":"self","testo":"Scioglilingua: 'tre tigri contro tre tigri' x3, veloce.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"tmp_07","cat":"tempo","vibe":["boys","misto","fuori"],"heat":2,"tipo":"timer","target":"gruppo","testo":"Categoria marche di auto: a turno, chi si blocca in 3s beve.","pen":1,"timer":3,"risp":"","regola":""},
+  {"id":"tmp_08","cat":"tempo","vibe":["boys","misto","fuori"],"heat":2,"tipo":"timer","target":"self","testo":"Ripeti la sequenza di 4 parole che dice il gruppo. Sbagli? Bevi.","pen":2,"timer":0,"risp":"","regola":""},
+  {"id":"tmp_09","cat":"tempo","vibe":["boys","misto"],"heat":3,"tipo":"timer","target":"scelto","testo":"Sfida di sguardi col vicino: il primo che ride beve. 15s.","pen":1,"timer":15,"risp":"","regola":""},
 
-        function startGame() {
-            currentDeck = DECK.filter(card => {
-                return card.vibe.some(v => activeVibes.includes(v));
-            });
+  // ===== TRIVIA =====
+  {"id":"trv_03","cat":"trivia","vibe":["boys","misto","fuori"],"heat":2,"tipo":"trivia","target":"gruppo","testo":"Chi nomina piu capitali europee in 30s vince, gli altri bevono.","pen":1,"timer":30,"risp":"","regola":""},
+  {"id":"trv_07","cat":"trivia","vibe":["boys","misto","fuori"],"heat":2,"tipo":"trivia","target":"self","testo":"Quanti tasti neri ha un'ottava di pianoforte?","pen":2,"timer":0,"risp":"5","regola":""},
+  {"id":"trv_09","cat":"trivia","vibe":["boys","misto","fuori"],"heat":2,"tipo":"trivia","target":"self","testo":"In che anno l'Italia ha vinto l'ultimo Mondiale?","pen":2,"timer":0,"risp":"2006","regola":""},
+  {"id":"trv_11","cat":"trivia","vibe":["boys","misto","fuori"],"heat":2,"tipo":"trivia","target":"self","testo":"Quanti anni dura il mandato del Presidente della Repubblica italiana?","pen":2,"timer":0,"risp":"7","regola":""},
+  {"id":"trv_12","cat":"trivia","vibe":["boys","misto","fuori"],"heat":2,"tipo":"trivia","target":"gruppo","testo":"Stima: quanti km separano Torino da Napoli? Il piu vicino fa bere gli altri.","pen":1,"timer":0,"risp":"Circa 900 km","regola":""},
+  {"id":"trv_14","cat":"trivia","vibe":["boys","misto","fuori"],"heat":2,"tipo":"trivia","target":"self","testo":"In che film c'e la frase 'Houston, abbiamo un problema'?","pen":2,"timer":0,"risp":"Apollo 13","regola":""},
 
-            if (currentDeck.length === 0) {
-                alert("Nessuna carta trovata per i Vibe selezionati!");
-                return;
-            }
+  // ===== CLASSICI =====
+  {"id":"cls_01","cat":"classici","vibe":["boys","misto","fuori"],"heat":2,"tipo":"gruppo","target":"gruppo","testo":"CASCATA. Si beve in sequenza: smetti solo quando smette chi ti sta prima.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"cls_02","cat":"classici","vibe":["boys","misto","fuori"],"heat":2,"tipo":"gruppo","target":"gruppo","testo":"IO NON HO MAI... chi l'ha fatto beve. Inizia chi ha pescato.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"cls_04","cat":"classici","vibe":["boys","misto","fuori"],"heat":2,"tipo":"gruppo","target":"gruppo","testo":"CATEGORIE: il gruppo sceglie un tema, uno a testa a giro. Chi si blocca beve.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"cls_05","cat":"classici","vibe":["boys","misto","fuori"],"heat":1,"tipo":"gruppo","target":"gruppo","testo":"REGOLA: vietato dire 'si' e 'no' fino al prossimo giro. Chi sbaglia, sorso.","pen":0,"timer":0,"risp":"","regola":"Vietato dire si e no"},
+  {"id":"cls_06","cat":"classici","vibe":["boys","misto","fuori"],"heat":2,"tipo":"gruppo","target":"gruppo","testo":"NUMERO PROIBITO: si conta a giro, vietato il 7 e i multipli. Sbagli? Bevi.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"cls_07","cat":"classici","vibe":["boys","misto","fuori"],"heat":2,"tipo":"gruppo","target":"gruppo","testo":"ROSSO O NERO: indovini il colore della prossima carta? Distribuisci un sorso. Sbagli? Bevi.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"cls_08","cat":"classici","vibe":["boys","misto","fuori"],"heat":1,"tipo":"gruppo","target":"gruppo","testo":"REGINA: chi pesca comanda per un giro, tutti devono imitarlo.","pen":0,"timer":0,"risp":"","regola":"Imita la Regina per un giro"},
 
-            for (let i = currentDeck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
-            }
+  // ===== BONUS =====
+  {"id":"bon_01","cat":"bonus","vibe":["boys","misto"],"heat":3,"tipo":"gruppo","target":"gruppo","testo":"DOMANDA DI GRUPPO. Mani alzate: chi l'ha gia combinata in un posto pubblico? La minoranza beve.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"bon_02","cat":"bonus","vibe":["boys","misto","fuori"],"heat":2,"tipo":"gruppo","target":"gruppo","testo":"TUTTI QUELLI CHE hanno un ex ancora tra i contatti... bevono.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"bon_03","cat":"bonus","vibe":["boys","misto","fuori"],"heat":2,"tipo":"gruppo","target":"gruppo","testo":"VOTAZIONE. Chi rimorchierebbe meglio stasera? Il piu votato fa un cul sec.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"bon_04","cat":"bonus","vibe":["boys","misto","fuori"],"heat":1,"tipo":"gruppo","target":"gruppo","testo":"BRINDISI. Tutti in piedi, si brinda e si beve insieme.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"bon_05","cat":"bonus","vibe":["boys","misto"],"heat":3,"tipo":"gruppo","target":"gruppo","testo":"DOMANDA DI GRUPPO. Chi ha mandato un messaggio bollente questa settimana? Minoranza beve.","pen":0,"timer":0,"risp":"","regola":""},
 
-            document.getElementById('setupPanel').style.display = 'none';
-            document.getElementById('gamePanel').style.display = 'flex';
-            
-            updateCounter();
-            nextCard();
-        }
+  // ===== MALUS (necessari per le caselle Mina - da GDD; il doc 2 non li includeva) =====
+  {"id":"mal_01","cat":"malus","vibe":["boys","misto","fuori"],"heat":1,"tipo":"diretto","target":"self","testo":"BEVI. 2 sorsi, diretti. Niente storie.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"mal_02","cat":"malus","vibe":["boys","misto"],"heat":2,"tipo":"diretto","target":"self","testo":"SHOT secco. Adesso.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"mal_03","cat":"malus","vibe":["boys","misto","fuori"],"heat":2,"tipo":"diretto","target":"scelto","testo":"Bevi tu + trascini uno a scelta. In due.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"mal_04","cat":"malus","vibe":["boys","misto"],"heat":2,"tipo":"diretto","target":"self","testo":"FONDO. Finisci quello che hai nel bicchiere.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"mal_05","cat":"malus","vibe":["boys","misto"],"heat":3,"tipo":"diretto","target":"gruppo","testo":"CATENA. Bevi e parte la catena: il prossimo il doppio.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"mal_06","cat":"malus","vibe":["boys","misto","fuori"],"heat":1,"tipo":"diretto","target":"scelto","testo":"Regala un sorso a chi vuoi... ma ne bevi uno anche tu.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"mal_07","cat":"malus","vibe":["boys","misto","fuori"],"heat":2,"tipo":"diretto","target":"self","testo":"DOPPIO: due sorsi, ora.","pen":0,"timer":0,"risp":"","regola":""},
+  {"id":"mal_08","cat":"malus","vibe":["boys","misto"],"heat":3,"tipo":"diretto","target":"scelto","testo":"ROULETTE: indica uno. Lancia il dado: pari bevi tu, dispari beve lui.","pen":0,"timer":0,"risp":"","regola":""}
+];
+const CAT = {
+  scomode:{emo:'❓',c:'#FFB020',nm:'Scomode'}, piccanti:{emo:'🌶️',c:'#FF2E8B',nm:'Piccanti'},
+  sfide:{emo:'🎯',c:'#2EE6D6',nm:'Sfide'}, tempo:{emo:'⏱️',c:'#7A5CFF',nm:'A tempo'},
+  trivia:{emo:'🧠',c:'#3B9DFF',nm:'Trivia'}, classici:{emo:'🍺',c:'#3DDC84',nm:'Classici'},
+  bonus:{emo:'🎁',c:'#FFD23F',nm:'Bonus'}, malus:{emo:'💀',c:'#FF4D4D',nm:'Malus'},
+  custom:{emo:'💥',c:'#C77DFF',nm:'Carta del party'}
+};
+const SP = {
+  mina:{emo:'💣',c:'#FF4D4D'}, jackpot:{emo:'🎰',c:'#FFD23F'}, duello:{emo:'⚡',c:'#2EE6D6'},
+  evento:{emo:'🌊',c:'#7A5CFF'}, caos:{emo:'🔄',c:'#A29FB6'}, surriscalda:{emo:'🌡️',c:'#FFB020'}, checkpoint:{emo:'🏁',c:'#3DDC84'}, classifica:{emo:'📊',c:'#FF8A5C'}, crea:{emo:'✍️',c:'#C77DFF'}
+};
+const BOARD = [
+ {t:'checkpoint'},{t:'cat',cat:'scomode'},{t:'cat',cat:'sfide'},{t:'mina'},{t:'cat',cat:'piccanti'},
+ {t:'cat',cat:'tempo'},{t:'jackpot'},{t:'cat',cat:'trivia'},{t:'crea'},{t:'evento'},
+ {t:'cat',cat:'sfide'},{t:'cat',cat:'piccanti'},{t:'duello'},{t:'cat',cat:'tempo'},{t:'mina'},
+ {t:'cat',cat:'classici'},{t:'cat',cat:'scomode'},{t:'cat',cat:'piccanti'},{t:'surriscalda'},{t:'cat',cat:'sfide'},
+ {t:'cat',cat:'trivia'},{t:'jackpot'},{t:'classifica'},{t:'crea'},{t:'mina'},
+ {t:'cat',cat:'classici'},{t:'duello'},{t:'evento'}
+];
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 
-        function nextCard() {
-            if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('timerDisplay').style.display = 'none';
-            document.getElementById('triviaBox').style.display = 'none';
-            document.getElementById('triviaBox').classList.remove('revealed');
+let S = { modalita:'standard', vibe:'misto', players:['Luca','Sara','Marco','Giulia'],
+  turn:0, pos:0, lap:1, heat:55, sips:{}, jolly:{}, ultimoGiro:false, used:{}, rolling:false, cur:null };
 
-            if (currentDeck.length === 0) {
-                document.getElementById('cardText').innerText = "Mazzo terminato! Clicca Reset per rigiocare.";
-                document.getElementById('cardCategory').innerText = "Fine";
-                document.getElementById('cardTarget').innerText = "-";
-                document.getElementById('cardHeat').innerHTML = "";
-                document.getElementById('cardFooter').style.display = 'none';
-                document.getElementById('nextBtn').disabled = true;
-                return;
-            }
+/* ===== EFFETTI ===== */
+let AC, master, sound=true, timerIV;
+function ac(){ if(!AC){ AC=new (window.AudioContext||window.webkitAudioContext)(); master=AC.createGain(); master.gain.value=.55; master.connect(AC.destination); }
+  if(AC.state==='suspended') AC.resume(); return AC; }
+function tone(f,o){ if(!sound)return; o=o||{}; const a=ac(),osc=a.createOscillator(),g=a.createGain(); osc.type=o.type||'sine'; osc.frequency.value=f;
+  if(o.lp){ const lp=a.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=o.lp; osc.connect(lp); lp.connect(g); } else osc.connect(g);
+  g.connect(master); const t=a.currentTime, du=o.dur||.2, v=o.vol||.3, at=o.attack||.005;
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+at); g.gain.exponentialRampToValueAtTime(.0001,t+du);
+  if(o.glide){ osc.frequency.setValueAtTime(f,t); osc.frequency.exponentialRampToValueAtTime(o.glide,t+du); } osc.start(t); osc.stop(t+du+.02); }
+function noise(o){ if(!sound)return; o=o||{}; const a=ac(), du=o.dur||.2, len=Math.max(1,Math.floor(du*a.sampleRate));
+  const buf=a.createBuffer(1,len,a.sampleRate), d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+  const s=a.createBufferSource(); s.buffer=buf; const f=a.createBiquadFilter(); f.type=o.ftype||'lowpass'; f.frequency.value=o.freq||1200;
+  const g=a.createGain(); s.connect(f); f.connect(g); g.connect(master); const t=a.currentTime, v=o.vol||.2;
+  g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.0001,t+du);
+  if(o.sweep){ f.frequency.setValueAtTime(o.freq||1200,t); f.frequency.exponentialRampToValueAtTime(o.sweep,t+du); } s.start(t); s.stop(t+du); }
+function bell(f,delay,v){ if(!sound)return; const a=ac(); [1,2,3.01].forEach((m,i)=>{ const o=a.createOscillator(),g=a.createGain(); o.type='sine'; o.frequency.value=f*m;
+  o.connect(g); g.connect(master); const t=a.currentTime+(delay||0), vv=(v||.3)/(i+1);
+  g.gain.setValueAtTime(vv,t); g.gain.exponentialRampToValueAtTime(.0001,t+.5); o.start(t); o.stop(t+.55); }); }
+function sfx(n){ if(!sound)return; ac();
+  if(n==='dice') noise({dur:.04,freq:3000,ftype:'highpass',vol:.12});
+  else if(n==='step') noise({dur:.025,freq:2000,ftype:'bandpass',vol:.06});
+  else if(n==='draw') tone(420,{type:'sine',dur:.18,vol:.26,glide:760,lp:2600});
+  else if(n==='done'){ bell(660,0,.28); bell(990,.08,.22); }
+  else if(n==='penalty'){ tone(150,{type:'sine',dur:.32,vol:.34,glide:60,lp:500}); noise({dur:.12,freq:320,vol:.16}); }
+  else if(n==='jackpot') [523,659,784,1046,1318].forEach((f,i)=>bell(f,i*.08,.26));
+  else if(n==='alarm'){ let i=0; const iv=setInterval(()=>{ tone(i%2?523:392,{type:'triangle',dur:.18,vol:.3,lp:1800}); if(++i>5)clearInterval(iv); },150); }
+  else if(n==='tick') noise({dur:.03,freq:5200,ftype:'highpass',vol:.1});
+  else if(n==='time'){ tone(180,{type:'sine',dur:.5,vol:.34,glide:80,lp:600}); noise({dur:.3,freq:220,vol:.18}); }
+  else if(n==='reveal') tone(330,{type:'triangle',dur:.5,vol:.25,glide:900,lp:3200});
+}
+function buzz(p){ if(navigator.vibrate){ try{ navigator.vibrate(p); }catch(e){} } }
+function flash(c){ const f=document.createElement('div'); f.className='flash'; f.style.background=c;
+  document.getElementById('app').appendChild(f); setTimeout(()=>f.remove(),420); }
+function confetti(){ const ov=document.getElementById('overlay'); const cols=['#FF2E8B','#7A5CFF','#2EE6D6','#FFD23F','#3DDC84'];
+  for(let i=0;i<26;i++){ const s=document.createElement('span'); s.className='cft';
+    s.style.left=(8+Math.random()*84)+'%'; s.style.background=cols[i%5];
+    s.style.animationDelay=(Math.random()*.3)+'s'; ov.appendChild(s); setTimeout(()=>s.remove(),1700); } }
+function toggleSnd(){ sound=!sound; document.getElementById('pillSnd').textContent=sound?'🔊':'🔇'; if(sound) ac(); }
+function startTimer(sec){ const el=document.querySelector('.tnum'), btn=document.querySelector('.tstart');
+  if(btn) btn.style.display='none'; let left=sec; clearInterval(timerIV);
+  timerIV=setInterval(()=>{ left--; if(el) el.textContent=left;
+    if(left<=3&&left>0){ if(el)el.classList.add('warn'); sfx('tick'); buzz(40); }
+    if(left<=0){ clearInterval(timerIV); sfx('time'); buzz([120,60,120]); flash('rgba(255,77,77,.5)'); if(el) el.textContent='STOP!'; } },1000);
+}
 
-            const card = currentDeck.pop();
-            updateCounter();
+/* ===== SORPRESE (sfida del tavolo / power hour, casuali) ===== */
+let surpriseIV=null, surpriseOn=true;
+const TAVOLO=[
+ {e:'🍻 Brindisi del tavolo', s:'Tutti in piedi, si brinda e si beve insieme!', f:()=>allDrink(1)},
+ {e:'🔥 Power Hour', s:'Mini brindisi a sorpresa: tutti due sorsi!', f:()=>allDrink(2)},
+ {e:'👇 Pollice', s:"L'ultimo a mettere il pollice sul tavolo beve 2.", f:()=>{}},
+ {e:'🗣️ Una parola', s:'A giro, una parola sulla serata: chi esita o ripete beve.', f:()=>{}},
+ {e:'🤜 Braccio di ferro', s:'A coppie: chi perde beve. Pari e patta? Bevete entrambi.', f:()=>{}},
+ {e:'📸 Foto seria', s:'Selfie tutti insieme con la faccia piu seria. Chi ride beve.', f:()=>{}},
+ {e:'🎤 Karaoke flash', s:'Tutti cantano il ritornello che parte ora. Chi non lo sa, beve.', f:()=>{}},
+ {e:'🙅 Mai stato qui', s:'Chi non e mai stato in questa casa/locale beve. Senno bevono gli altri.', f:()=>{}}
+];
+function scheduleSurprise(){ clearTimeout(surpriseIV); if(!surpriseOn) return;
+  surpriseIV=setTimeout(fireSurprise, 300000+Math.random()*300000); }
+function fireSurprise(){ if(!surpriseOn) return;
+  const ov=document.getElementById('overlay');
+  if(S.rolling || ov.classList.contains('show')){ surpriseIV=setTimeout(fireSurprise, 8000); return; }
+  const e=TAVOLO[Math.floor(Math.random()*TAVOLO.length)]; e.f(); updatePlayers();
+  sfx('alarm'); flash('rgba(46,230,214,.4)'); buzz([120,60,120,60,120]);
+  S.surprise=true;
+  const cd=ov.querySelector('.card'); cd.style.setProperty('--cc','#2EE6D6');
+  ov.querySelector('.cat').textContent='🎲 SFIDA DEL TAVOLO'; ov.querySelector('.dots').innerHTML='';
+  ov.querySelector('.ctext').textContent=e.e+' — '+e.s;
+  ov.querySelector('.pen').style.display='none'; ov.querySelector('.tmr').style.display='none';
+  ov.querySelector('.cbtns').innerHTML='<button class="btn" data-act="closeSurprise">Ok</button>'; ov.classList.add('show');
+  scheduleSurprise();
+}
+function closeSurprise(){ S.surprise=false; sfx('done'); document.getElementById('overlay').classList.remove('show'); }
+function toggleSurprise(){ surpriseOn=!surpriseOn; document.getElementById('pillSurp').textContent=surpriseOn?'🎲 Sorprese':'🎲 Off'; if(surpriseOn) scheduleSurprise(); else clearTimeout(surpriseIV); }
 
-            document.getElementById('cardText').innerText = card.testo;
-            document.getElementById('cardCategory').innerText = card.cat.toUpperCase();
-            document.getElementById('cardCategory').style.backgroundColor = `var(--cat-${card.cat})`;
-            document.getElementById('cardTarget').innerText = card.target.toUpperCase();
-            
-            if(card.pen > 0) {
-                document.getElementById('cardFooter').style.display = 'flex';
-                document.getElementById('cardPenalty').innerText = `Penalità: ${card.pen} Sorsi`;
-            } else {
-                document.getElementById('cardFooter').style.display = 'none';
-            }
+function tierRange(){ const h=S.heat;
+  if(S.modalita==='standard') return {mn:1, mx:h<34?1:h<67?2:3};
+  return {mn:2, mx:h<50?2:h<80?3:4}; }
+function vibeOk(c){ return c.vibe.includes(S.vibe); }
+function draw(cat){
+  const {mn,mx}=tierRange(); if(!S.used[cat]) S.used[cat]=[];
+  let p=DECK.filter(c=>c.cat===cat&&vibeOk(c)&&c.heat>=mn&&c.heat<=mx&&!S.used[cat].includes(c.id));
+  if(!p.length){ S.used[cat]=[]; p=DECK.filter(c=>c.cat===cat&&vibeOk(c)&&c.heat>=mn&&c.heat<=mx); }
+  if(!p.length) p=DECK.filter(c=>c.cat===cat&&vibeOk(c));
+  if(!p.length) p=DECK.filter(c=>c.cat===cat);
+  const c=p[Math.floor(Math.random()*p.length)]; if(c) S.used[cat].push(c.id); return c;
+}
+function drawDuello(){ const p=DECK.filter(c=>(c.cat==='tempo'||c.cat==='trivia')&&vibeOk(c)); return p[Math.floor(Math.random()*p.length)]; }
+function who(){ return S.players[S.turn]; }
 
-            let heatHtml = '';
-            for (let i = 1; i <= 4; i++) {
-                heatHtml += `<span class="fire-icon ${i <= card.heat ? 'active' : ''}">🔥</span>`;
-            }
-            document.getElementById('cardHeat').innerHTML = heatHtml;
+// SETUP
+function renderChips(){ const el=document.getElementById('chips');
+  el.innerHTML=S.players.map((n,i)=>'<span class="chip">'+n+' <b data-act="delP" data-i="'+i+'">×</b></span>').join(''); }
+function addP(){ const i=document.getElementById('pin'); const v=i.value.trim();
+  if(v && S.players.length<12){ S.players.push(v); i.value=''; renderChips(); } i.focus(); }
+function delP(i){ S.players.splice(i,1); renderChips(); }
+document.getElementById('segMode').onclick=e=>{ if(e.target.dataset.m){ S.modalita=e.target.dataset.m;
+  [...e.currentTarget.children].forEach(b=>b.classList.toggle('on',b.dataset.m===S.modalita)); } };
+document.getElementById('vibes').onclick=e=>{ const d=e.target.closest('.vibe'); if(d){ S.vibe=d.dataset.v;
+  [...e.currentTarget.children].forEach(v=>v.classList.toggle('on',v.dataset.v===S.vibe)); } };
+document.getElementById('pin').addEventListener('keydown',e=>{ if(e.key==='Enter') addP(); });
 
-            const cardContainer = document.getElementById('cardContainer');
-            if(card.heat >= 4) {
-                cardContainer.style.borderColor = '#ff2a5f';
-                cardContainer.style.boxShadow = '0 15px 35px rgba(255, 42, 95, 0.3)';
-            } else {
-                cardContainer.style.borderColor = '#2a2a3a';
-                cardContainer.style.boxShadow = '0 15px 35px rgba(0,0,0,0.6)';
-            }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); document.getElementById(id).classList.add('on'); }
+function start(){ if(S.players.length<2){ alert('Servono almeno 2 giocatori'); return; }
+  S.turn=0; S.pos=0; S.lap=1; S.heat=55; S.sips={}; S.jolly={}; S.ultimoGiro=false; S.used={}; S.custom=[]; S.ccount=0;
+  show('game'); renderDie(5); renderBoard(); renderTurn(); scheduleSurprise(); }
+window.addEventListener('resize',()=>{ if(document.getElementById('game').classList.contains('on')) renderBoard(); });
 
-            if (card.timer > 0) {
-                initTimer(card.timer);
-            }
+// GAME
+function renderDie(n){ const d=document.getElementById('die'); let h='';
+  for(let i=0;i<9;i++) h+='<i class="pip'+(PIPS[n].includes(i)?'':' off')+'"></i>'; d.innerHTML=h; }
+function boardGeo(){ const b=document.getElementById('board'); const W=b.clientWidth||300; return {c:W/2,R:W/2-16}; }
+function tileXY(i){ const g=S._geo||boardGeo(); const a=(-90+i*(360/28))*Math.PI/180; return {x:g.c+g.R*Math.cos(a), y:g.c+g.R*Math.sin(a)}; }
+function renderBoard(){ const b=document.getElementById('board'); S._geo=boardGeo();
+  b.querySelectorAll('.tile,.pedina').forEach(e=>e.remove());
+  BOARD.forEach((t,i)=>{ const m=t.t==='cat'?CAT[t.cat]:SP[t.t]; const {x,y}=tileXY(i); const sz=24;
+    const el=document.createElement('div'); el.className='tile';
+    el.style.left=(x-sz/2)+'px'; el.style.top=(y-sz/2)+'px'; el.style.width=sz+'px'; el.style.height=sz+'px';
+    el.style.borderColor=m.c; el.textContent=m.emo; b.appendChild(el); });
+  const p=document.createElement('div'); p.className='pedina'; p.id='pedina'; b.appendChild(p);
+  setPedina(S.pos); document.getElementById('bcS').textContent='giro '+S.lap;
+}
+function setPedina(i){ const p=document.getElementById('pedina'); if(!p) return; const {x,y}=tileXY(i);
+  p.style.left=(x-9)+'px'; p.style.top=(y-9)+'px'; document.getElementById('bcN').textContent=i; }
+function updatePlayers(){ const el=document.getElementById('players'); if(!el) return;
+  const arr=S.players.map((p,i)=>({p,n:S.sips[p]||0,cur:i===S.turn})).sort((a,b)=>b.n-a.n);
+  el.innerHTML=arr.map((o,r)=>'<div class="pchip'+(o.cur?' cur':'')+'"><span class="pr">'+(r+1)+'</span><span class="pn">'+o.p+'</span><span class="ps">'+o.n+' 🍺</span></div>').join(''); }
+function renderTurn(){ document.getElementById('who').textContent=who(); updatePlayers();
+  document.getElementById('pillVibe').textContent=({boys:'🔥 Boys',misto:'💞 Misto',fuori:'🍸 Fuori'})[S.vibe];
+  document.getElementById('pillMode').textContent=(S.modalita==='hardcore'?'🔥 Hardcore':'✨ Standard');
+  document.getElementById('pillLast').style.opacity=S.ultimoGiro?'.45':'1';
+  updateHeat(); }
+function rgba(c,a){ const n=parseInt(c.slice(1),16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+function heatToast(d){ const w=document.querySelector('.heat'); if(!w) return;
+  const t=document.createElement('div'); t.className='htoast'; t.textContent='+'+d+' 🔥'; w.appendChild(t); setTimeout(()=>t.remove(),900); }
+function updateHeat(){ const h=S.heat;
+  document.getElementById('heatfill').style.width=h+'%';
+  document.getElementById('heatval').textContent=Math.round(h)+(S.ultimoGiro?' · ultimo giro':' · sale');
+  const col = h<50?'#7A5CFF':h<80?'#FF2E8B':'#FF4D4D'; const inten=0.16+(h/100)*0.4;
+  const hg=document.getElementById('heatglow'); if(hg) hg.style.background='radial-gradient(720px 400px at 50% -4%, '+rgba(col,inten)+', transparent 62%)';
+}
 
-            if (card.tipo === 'trivia' && card.risp !== '') {
-                document.getElementById('triviaBox').style.display = 'block';
-                document.getElementById('triviaAnswer').innerText = card.risp;
-            }
+function cycleVibe(){ const o=['boys','misto','fuori']; S.vibe=o[(o.indexOf(S.vibe)+1)%3]; renderTurn(); }
+function toggleMode(){ S.modalita=S.modalita==='standard'?'hardcore':'standard'; renderTurn(); }
+function lastLap(){ S.ultimoGiro=true; renderTurn(); }
 
-            const rulesPanel = document.getElementById('rulesPanel');
-            if (card.regola && card.regola !== '') {
-                rulesPanel.style.display = 'block';
-                document.getElementById('ruleText').innerText = card.regola;
-            }
-        }
+function roll(){ if(S.rolling) return; S.rolling=true; ac();
+  const die=document.getElementById('die'); die.classList.add('roll');
+  document.getElementById('rollBtn').disabled=true;
+  let t=0; const iv=setInterval(()=>{ renderDie(1+Math.floor(Math.random()*6)); sfx('dice'); if(++t>8){
+    clearInterval(iv); die.classList.remove('roll'); const n=1+Math.floor(Math.random()*6);
+    renderDie(n); buzz(30); S.rolling=false; document.getElementById('rollBtn').disabled=false; move(n); } },80);
+}
+function move(n){ let steps=n, wrapped=false;
+  function step(){
+    if(steps<=0){ updateHeat();
+      if(wrapped && S.ultimoGiro){ setTimeout(endGame,450); return; }
+      setTimeout(resolveTile,320); return; }
+    S.pos=(S.pos+1)%28; setPedina(S.pos); sfx('step'); buzz(12);
+    if(S.pos===0){ S.lap++; document.getElementById('bcS').textContent='giro '+S.lap;
+      S.heat=Math.min(100,S.heat+10); wrapped=true; heatToast(10); updateHeat(); }
+    steps--; setTimeout(step,165);
+  }
+  step();
+}
+function resolveTile(){ const t=BOARD[S.pos];
+  if(t.t==='cat'){ if(S.custom.length && Math.random()<0.4) drawCustom(); else showCard(draw(t.cat), CAT[t.cat], CAT[t.cat].nm); }
+  else if(t.t==='crea') openCreate();
+  else if(t.t==='mina'){ flash('rgba(255,77,77,.45)'); sfx('penalty'); buzz([60,40,60]); showCard(draw('malus'), CAT.malus, 'Mina · bevi'); }
+  else if(t.t==='jackpot'){ S.jolly[who()]=(S.jolly[who()]||0)+1; showCard(draw('bonus'), CAT.bonus, 'Jackpot · +1 Jolly'); sfx('jackpot'); confetti(); buzz([30,40,30,40,90]); }
+  else if(t.t==='duello') showCard(drawDuello(), SP.duello, 'Duello ⚡ 1v1', true);
+  else if(t.t==='evento'){ allDrink(1); S.heat=Math.min(100,S.heat+5); heatToast(5); updateHeat(); sfx('alarm'); flash('rgba(122,92,255,.4)'); buzz([100,60,100,60,100]); evt('🌊 Tutti bevono','Tutti un sorso. Heat +5.'); }
+  else if(t.t==='caos'){ buzz([40,40,40]); evt('🔄 Caos','Si gira al contrario per un giro!'); }
+  else if(t.t==='surriscalda'){ S.heat=Math.min(100,S.heat+10); heatToast(10); updateHeat(); flash('rgba(255,176,32,.35)'); buzz([60,30,90]); evt('🌡️ Surriscalda','Heat +10. Si scalda la serata.'); }
+  else if(t.t==='checkpoint'){ S.heat=Math.min(100,S.heat+5); heatToast(5); updateHeat(); buzz(50); evt('🏁 Checkpoint','Bonus giro. Heat +5.','#3DDC84'); }
+  else if(t.t==='classifica') doClassifica();
+}
+function dots(h){ let s=''; for(let i=1;i<=4;i++) s+='<span class="'+(h>=i?'on':'')+'"></span>'; return s; }
+function showCard(card, meta, badge, duello){
+  if(!card){ nextTurn(); return; }
+  S.cur=card; const ov=document.getElementById('overlay'), cd=ov.querySelector('.card');
+  cd.style.setProperty('--cc',meta.c);
+  const isMalus = card.cat==='malus' || card.tipo==='diretto';
+  ov.querySelector('.cat').innerHTML=meta.emo+' '+(badge||meta.nm);
+  ov.querySelector('.dots').innerHTML=dots(card.heat);
+  let tx=card.testo; if(card.tipo==='timer'&&card.timer) tx+=' ⏱️'+card.timer+'s';
+  if(duello) tx+='  · chi perde beve';
+  ov.querySelector('.ctext').textContent=tx;
+  const tmr=ov.querySelector('.tmr');
+  if(card.timer>0){ tmr.style.display='block';
+    tmr.innerHTML='<div class="tnum">'+card.timer+'</div><button class="btn ghost tstart" data-act="startTimer" data-sec="'+card.timer+'">▶ Avvia timer</button>'; }
+  else tmr.style.display='none';
+  const pen=ov.querySelector('.pen');
+  if(card.pen>0 && !isMalus){ pen.style.display='flex'; pen.innerHTML='Rifiuti? <b>'+card.pen+' sorsi</b>'; }
+  else pen.style.display='none';
+  const jol=S.jolly[who()]||0; let b='';
+  if(isMalus){ b='<button class="btn" data-act="doMalus">Bevi 🍺</button>'; }
+  else { if(jol>0) b+='<button class="btn ghost" data-act="useJolly">🃏 Salta ('+jol+')</button>';
+    if(card.pen>0) b+='<button class="btn ghost" data-act="refuse" data-pen="'+card.pen+'">Rifiuto</button>';
+    b+='<button class="btn" data-act="doneCard">Fatto</button>'; }
+  ov.querySelector('.cbtns').innerHTML=b; ov.classList.add('show'); sfx('draw'); buzz(20);
+}
+function evt(title, sub, color){ const ov=document.getElementById('overlay'), cd=ov.querySelector('.card');
+  cd.style.setProperty('--cc',color||'#7A5CFF');
+  ov.querySelector('.cat').textContent=title;
+  ov.querySelector('.dots').innerHTML='';
+  ov.querySelector('.ctext').textContent=sub;
+  ov.querySelector('.pen').style.display='none';
+  ov.querySelector('.tmr').style.display='none';
+  ov.querySelector('.cbtns').innerHTML='<button class="btn" data-act="closeOv">Ok</button>';
+  ov.classList.add('show');
+}
+function add(p,n){ S.sips[p]=(S.sips[p]||0)+n; updatePlayers(); }
+function allDrink(n){ S.players.forEach(p=>add(p,n)); }
+function closeOv(){ clearInterval(timerIV); document.getElementById('overlay').classList.remove('show'); S.cur=null; nextTurn(); }
+function doneCard(){ explodeCustom(); sfx('done'); buzz(25); closeOv(); }
+function useJolly(){ S.jolly[who()]--; explodeCustom(); sfx('draw'); closeOv(); }
+function refuse(p){ add(who(),p); explodeCustom(); sfx('penalty'); buzz(80); closeOv(); }
 
-        function initTimer(seconds) {
-            const display = document.getElementById('timerDisplay');
-            display.style.display = 'block';
-            display.innerText = seconds;
-            display.style.color = 'var(--cat-tempo)';
+/* ===== CARTE CREATE DAI GIOCATORI ===== */
+function drawCustom(){
+  const c = S.custom[Math.floor(Math.random()*S.custom.length)];
+  flash('rgba(199,125,255,.4)');
+  showCard(c, CAT.custom, '💥 Carta del party · di '+c.author);
+}
+function explodeCustom(){
+  if(S.cur && S.cur.cat==='custom'){
+    const i=S.custom.findIndex(c=>c.id===S.cur.id);
+    if(i>=0){ S.custom.splice(i,1); flash('rgba(199,125,255,.55)'); confetti(); buzz([60,40,60,40,90]); }
+  }
+}
+let createIV=null, createLeft=60;
+function openCreate(){
+  if(S.custom.length>=5){ evt('✍️ Mazzo pieno','Ci sono già 5 carte create in gioco. Aspetta che qualcuno le peschi e le faccia esplodere!','#C77DFF'); return; }
+  const ov=document.getElementById('createOv'), t=document.getElementById('ctimer');
+  document.getElementById('cardText').value='';
+  document.querySelector('#createOv .csub').textContent=who()+', scrivi una carta: finirà nel mazzo e può capitare a chiunque (anche a te). Appena viene pescata, esplode e sparisce.';
+  createLeft=60; t.textContent='60s'; t.classList.remove('warn');
+  ov.classList.add('show'); sfx('draw'); buzz(20);
+  setTimeout(function(){ document.getElementById('cardText').focus(); },120);
+  clearInterval(createIV);
+  createIV=setInterval(function(){ createLeft--; t.textContent=createLeft+'s';
+    if(createLeft<=10) t.classList.add('warn');
+    if(createLeft<=0){ clearInterval(createIV); cancelCreate(true); } },1000);
+}
+function submitCreate(){
+  const txt=document.getElementById('cardText').value.trim();
+  if(txt.length<3){ document.getElementById('cardText').focus(); buzz([40,40,40]); return; }
+  clearInterval(createIV); S.ccount++;
+  S.custom.push({id:'usr_'+S.ccount, cat:'custom', tipo:'statica', target:'self',
+    heat:Math.max(1,Math.min(4,Math.round(S.heat/25))), testo:txt, pen:3, timer:0, risp:'', regola:'', author:who()});
+  document.getElementById('createOv').classList.remove('show');
+  sfx('jackpot'); buzz([30,40,30]); confetti();
+  evt('✍️ Carta aggiunta','In gioco ora: '+S.custom.length+'/5. Esploderà appena qualcuno la pesca.','#C77DFF');
+}
+function cancelCreate(timeout){
+  clearInterval(createIV);
+  document.getElementById('createOv').classList.remove('show');
+  if(timeout){ sfx('penalty'); buzz(80); evt('⏱️ Tempo scaduto','Nessuna carta creata: il minuto è finito. Si prosegue.','#FF4D4D'); }
+  else nextTurn();
+}
+function doMalus(){ add(who(),2); sfx('penalty'); buzz(80); closeOv(); }
+function doClassifica(){
+  const order=S.players.slice().sort((a,b)=>(S.sips[b]||0)-(S.sips[a]||0));
+  let lines=[]; order.forEach((p,i)=>{ add(p,i+1); lines.push(p+': '+(i+1)+' 🍺'); });
+  sfx('reveal'); flash('rgba(255,138,92,.4)'); buzz([50,40,50,40,90]); updatePlayers();
+  evt('📊 Classifica', 'Si beve in ordine, da chi ne ha bevuti di più a chi di meno: +1 a ogni gradino. '+lines.join('  ·  '), '#FF8A5C');
+}
+function nextTurn(){ if(document.getElementById('overlay').classList.contains('show')) document.getElementById('overlay').classList.remove('show');
+  S.turn=(S.turn+1)%S.players.length; renderTurn(); }
 
-            timerInterval = setInterval(() => {
-                seconds--;
-                display.innerText = seconds;
+function endGame(){ clearInterval(timerIV); clearTimeout(surpriseIV); sfx('jackpot'); document.getElementById('overlay').classList.remove('show');
+  const r=S.players.map(p=>[p,S.sips[p]||0]).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('rlist').innerHTML=r.map((x,i)=>
+    '<div class="rrow'+(i===0?' first':'')+'"><span class="n">'+(i===0?'👑 ':'')+x[0]+'</span><span class="s">'+x[1]+' sorsi</span></div>').join('');
+  show('recap');
+}
+function reset(){ clearTimeout(surpriseIV); show('setup'); renderChips(); }
 
-                if (seconds <= 5) {
-                    display.style.color = '#ff2a5f';
-                }
+/* ===== DELEGAZIONE EVENTI (sostituisce gli onclick inline) =====
+   Gli handler inline onclick="..." non vengono eseguiti in ambienti
+   sandbox/anteprima con CSP rigida: per questo i pulsanti risultavano
+   non cliccabili. Qui li gestiamo tutti con un solo listener delegato. */
+document.addEventListener('click', function(e){
+  const el = e.target.closest('[data-act]'); if(!el) return;
+  const a = el.dataset.act;
+  switch(a){
+    case 'addP': addP(); break;
+    case 'start': start(); break;
+    case 'cycleVibe': cycleVibe(); break;
+    case 'toggleMode': toggleMode(); break;
+    case 'lastLap': lastLap(); break;
+    case 'toggleSnd': toggleSnd(); break;
+    case 'toggleSurprise': toggleSurprise(); break;
+    case 'roll': roll(); break;
+    case 'reset': reset(); break;
+    case 'delP': delP(+el.dataset.i); break;
+    case 'closeSurprise': closeSurprise(); break;
+    case 'startTimer': startTimer(+el.dataset.sec); break;
+    case 'doMalus': doMalus(); break;
+    case 'useJolly': useJolly(); break;
+    case 'refuse': refuse(+el.dataset.pen); break;
+    case 'doneCard': doneCard(); break;
+    case 'closeOv': closeOv(); break;
+    case 'submitCreate': submitCreate(); break;
+    case 'cancelCreate': cancelCreate(false); break;
+  }
+});
 
-                if (seconds <= 0) {
-                    clearInterval(timerInterval);
-                    display.innerText = "TEMPO SCADUTO!";
-                }
-            }, 1000);
-        }
+renderChips(); renderDie(5);
 
-        function revealTrivia() {
-            document.getElementById('triviaBox').classList.add('revealed');
-        }
-
-        function updateCounter() {
-            document.getElementById('deckCounter').innerText = `Carte rimanenti nel mazzo: ${currentDeck.length}`;
-        }
-
-        function resetGame() {
-            if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('setupPanel').style.display = 'block';
-            document.getElementById('gamePanel').style.display = 'none';
-            document.getElementById('rulesPanel').style.display = 'none';
-            document.getElementById('nextBtn').disabled = false;
-        }
-    </script>
+</script>
 </body>
 </html>
