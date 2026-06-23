@@ -147,7 +147,6 @@
             border: 1px solid #2a2a3a;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             position: relative;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .card-header {
@@ -296,7 +295,6 @@
             border-radius: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
         .btn-main {
@@ -336,9 +334,9 @@
         <div class="setup-panel" id="setupPanel">
             <h3>Seleziona il Vibe della serata:</h3>
             <div class="vibe-selector">
-                <button class="vibe-btn active" onclick="toggleVibe('misto')">Misto</button>
-                <button class="vibe-btn" onclick="toggleVibe('boys')">Boys</button>
-                <button class="vibe-btn" onclick="toggleVibe('fuori')">Fuori</button>
+                <button class="vibe-btn active" onclick="toggleVibe(this, 'misto')">Misto</button>
+                <button class="vibe-btn" onclick="toggleVibe(this, 'boys')">Boys</button>
+                <button class="vibe-btn" onclick="toggleVibe(this, 'fuori')">Fuori</button>
             </div>
             <button class="start-btn" onclick="startGame()">AVVIA PARTITA</button>
         </div>
@@ -347,8 +345,7 @@
             <div class="card" id="cardContainer">
                 <div class="card-header">
                     <span class="badge" id="cardCategory">Categoria</span>
-                    <div class="heat-container" id="cardHeat">
-                        </div>
+                    <div class="heat-container" id="cardHeat"></div>
                 </div>
 
                 <div class="card-main">
@@ -382,7 +379,6 @@
     </div>
 
     <script>
-        // Il mazzo completo ed aggiornato inserito direttamente nell'HTML
         const DECK = [
           // SCOMODE
           {"id": "scm_01", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Mostra l'ultima foto che hai ricevuto nei DM.", "pen": 3, "timer": 0, "risp": "", "regola": ""},
@@ -480,26 +476,28 @@
         let currentDeck = [];
         let timerInterval = null;
 
-        function toggleVibe(vibe) {
-            const btn = event.target;
+        function toggleVibe(element, vibe) {
             if (activeVibes.includes(vibe)) {
                 if (activeVibes.length > 1) {
                     activeVibes = activeVibes.filter(v => v !== vibe);
-                    btn.classList.remove('active');
+                    element.classList.remove('active');
                 }
             } else {
                 activeVibes.push(vibe);
-                btn.classList.add('active');
+                element.classList.add('active');
             }
         }
 
         function startGame() {
-            // Filtra il mazzo in base ai Vibe selezionati
             currentDeck = DECK.filter(card => {
                 return card.vibe.some(v => activeVibes.includes(v));
             });
 
-            // Mischia il mazzo (Shuffle algoritmo Fisher-Yates)
+            if (currentDeck.length === 0) {
+                alert("Nessuna carta trovata per i Vibe selezionati!");
+                return;
+            }
+
             for (let i = currentDeck.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
@@ -519,11 +517,11 @@
             document.getElementById('triviaBox').classList.remove('revealed');
 
             if (currentDeck.length === 0) {
-                document.getElementById('cardText').innerText = "Mazzo terminato! Clicca Reset per rigiocare con questo o altri Vibe.";
+                document.getElementById('cardText').innerText = "Mazzo terminato! Clicca Reset per rigiocare.";
                 document.getElementById('cardCategory').innerText = "Fine";
                 document.getElementById('cardTarget').innerText = "-";
                 document.getElementById('cardHeat').innerHTML = "";
-                document.getElementById('cardPenalty').innerText = "Sorsi: 0";
+                document.getElementById('cardFooter').style.display = 'none';
                 document.getElementById('nextBtn').disabled = true;
                 return;
             }
@@ -531,13 +529,11 @@
             const card = currentDeck.pop();
             updateCounter();
 
-            // Render dei dati sulla carta
             document.getElementById('cardText').innerText = card.testo;
-            document.getElementById('cardCategory').innerText = card.cat;
+            document.getElementById('cardCategory').innerText = card.cat.toUpperCase();
             document.getElementById('cardCategory').style.backgroundColor = `var(--cat-${card.cat})`;
-            document.getElementById('cardTarget').innerText = card.target;
+            document.getElementById('cardTarget').innerText = card.target.toUpperCase();
             
-            // Gestione Sorsi / Penalità
             if(card.pen > 0) {
                 document.getElementById('cardFooter').style.display = 'flex';
                 document.getElementById('cardPenalty').innerText = `Penalità: ${card.pen} Sorsi`;
@@ -545,42 +541,34 @@
                 document.getElementById('cardFooter').style.display = 'none';
             }
 
-            // Render Fuochi (Heat Level)
             let heatHtml = '';
             for (let i = 1; i <= 4; i++) {
                 heatHtml += `<span class="fire-icon ${i <= card.heat ? 'active' : ''}">🔥</span>`;
             }
             document.getElementById('cardHeat').innerHTML = heatHtml;
 
-            // Cambia colore bordo in base all'intensità (Heat)
             const cardContainer = document.getElementById('cardContainer');
             if(card.heat >= 4) {
                 cardContainer.style.borderColor = '#ff2a5f';
-                cardContainer.style.boxShadow = '0 15px 35px rgba(255, 42, 95, 0.2)';
+                cardContainer.style.boxShadow = '0 15px 35px rgba(255, 42, 95, 0.3)';
             } else {
                 cardContainer.style.borderColor = '#2a2a3a';
                 cardContainer.style.boxShadow = '0 15px 35px rgba(0,0,0,0.6)';
             }
 
-            // Se è una carta a Tempo / Timer superiore a zero
             if (card.timer > 0) {
                 initTimer(card.timer);
             }
 
-            // Se è una Trivia
             if (card.tipo === 'trivia' && card.risp !== '') {
                 document.getElementById('triviaBox').style.display = 'block';
                 document.getElementById('triviaAnswer').innerText = card.risp;
             }
 
-            // Gestione Regole Attive nel gruppo (Es. cls_05 o cls_08)
             const rulesPanel = document.getElementById('rulesPanel');
-            if (card.regola !== '') {
+            if (card.regola && card.regola !== '') {
                 rulesPanel.style.display = 'block';
                 document.getElementById('ruleText').innerText = card.regola;
-            } else {
-                // Lasciamo l'ultima regola visibile o la nascondiamo a seconda delle preferenze. 
-                // Di solito nei drinking games le regole durano finché non ne esce un'altra.
             }
         }
 
@@ -595,7 +583,7 @@
                 display.innerText = seconds;
 
                 if (seconds <= 5) {
-                    display.style.color = '#ff2a5f'; // Lampeggia o diventa rosso alla fine
+                    display.style.color = '#ff2a5f';
                 }
 
                 if (seconds <= 0) {
