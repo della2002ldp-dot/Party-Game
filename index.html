@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GIRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A11;--surface:#15141F;--surface2:#1E1C2B;
+  --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --tx:#F4F2FA;--mut:#A29FB6;--mut2:#6F6C82;
+  --pink:#FF2E8B;--violet:#7A5CFF;--cyan:#2EE6D6;--red:#FF4D4D;
+  --disp:"Bricolage Grotesque",system-ui,sans-serif;--body:"Inter",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--body);color:var(--tx);
+  background:radial-gradient(1000px 500px at 50% -8%, #1a1430 0%, var(--bg) 55%);overflow:hidden}
+#app{max-width:460px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;
+  padding:22px 18px calc(18px + env(safe-area-inset-bottom));overflow:hidden}
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.on{display:flex}
+h1{font-family:var(--disp);font-weight:800;letter-spacing:-.5px}
+.logo{font-family:var(--disp);font-weight:800;font-size:46px;letter-spacing:-1px;text-align:center;
+  background:linear-gradient(92deg,var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{text-align:center;color:var(--mut);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.label{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut2);margin-bottom:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:16px;
+  font-family:var(--disp);font-weight:600;font-size:16px;border:none;cursor:pointer;color:#fff;
+  background:linear-gradient(92deg,var(--violet),var(--pink));box-shadow:0 8px 24px -6px rgba(255,46,139,.5)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--line2);box-shadow:none}
+.btn:disabled{opacity:.4}
+
+/* SETUP */
+.seg{display:flex;background:var(--surface2);border-radius:14px;padding:4px;border:1px solid var(--line)}
+.seg button{flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:500;color:var(--mut);
+  background:transparent;font-family:var(--body);cursor:pointer}
+.seg button.on{background:linear-gradient(92deg,rgba(122,92,255,.95),rgba(255,46,139,.95));color:#fff}
+.vibes{display:flex;gap:8px}
+.vibe{flex:1;border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center;background:var(--surface2);cursor:pointer}
+.vibe .em{font-size:22px}.vibe .nm{font-size:12px;margin-top:6px;color:var(--mut)}
+.vibe.on{border-color:var(--pink);box-shadow:0 0 0 1px var(--pink)}.vibe.on .nm{color:var(--tx)}
+.prow{display:flex;gap:8px}
+.prow input{flex:1;background:var(--surface2);border:1px solid var(--line);border-radius:12px;color:var(--tx);
+  padding:12px;font-family:var(--body);font-size:15px}
+.prow input:focus{outline:none;border-color:var(--violet)}
+.iadd{width:48px;flex:0 0 48px;border-radius:12px;border:1px solid var(--line2);background:var(--surface2);color:var(--tx);font-size:20px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:flex;align-items:center;gap:7px;padding:8px 10px 8px 13px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);font-size:13px}
+.chip b{color:var(--mut2);cursor:pointer;font-weight:400;font-size:15px}
+
+/* GAME */
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:500;
+  border:1px solid var(--line2);color:var(--mut);background:var(--surface2);cursor:pointer}
+.heat{margin-top:16px}
+.heatbar{height:10px;border-radius:999px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
+.heatfill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--pink) 60%,var(--red));
+  transition:width .5s ease;box-shadow:0 0 16px rgba(255,46,139,.6)}
+.heatrow{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:6px}
+#board{position:relative;width:min(82vw,330px);aspect-ratio:1;margin:10px auto 0}
+.track{position:absolute;inset:14px;border-radius:50%;border:1px dashed var(--line2)}
+.tile{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid;background:var(--surface2);font-size:13px;transition:all .25s ease}
+.tile.here{font-size:17px;z-index:2}
+.bc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;pointer-events:none}
+.bc .big{font-family:var(--disp);font-weight:800;font-size:22px}
+.bc .sub{font-size:12px;color:var(--mut)}
+.center{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:8px}
+.who{font-family:var(--disp);font-weight:800;font-size:22px;text-align:center}
+.who small{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.die{width:84px;height:84px;border-radius:22px;background:var(--surface2);border:1px solid var(--line2);
+  display:grid;grid-template-columns:repeat(3,1fr);padding:14px;gap:5px;box-shadow:0 0 26px -8px rgba(122,92,255,.6)}
+.die.roll{animation:tumble .45s ease-in-out infinite}
+@keyframes tumble{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}
+.pip{align-self:center;justify-self:center;width:13px;height:13px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--cyan));box-shadow:0 0 8px var(--cyan)}
+.pip.off{background:transparent;box-shadow:none}
+
+/* OVERLAY CARD */
+#overlay{position:absolute;inset:0;background:rgba(5,4,12,.78);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:22px;z-index:20}
+#overlay.show{display:flex;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.card{--cc:var(--pink);width:100%;max-width:400px;border-radius:26px;padding:24px;min-height:60vh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--cc) 18%,var(--surface2)),var(--surface2) 45%);
+  border:1px solid color-mix(in srgb,var(--cc) 55%,transparent);
+  box-shadow:0 0 50px -14px var(--cc);animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
+.cat{align-self:flex-start;padding:7px 13px;border-radius:999px;font-family:var(--disp);font-weight:600;font-size:13px;
+  color:var(--cc);background:color-mix(in srgb,var(--cc) 18%,transparent);border:1px solid color-mix(in srgb,var(--cc) 50%,transparent)}
+.dots{display:flex;gap:5px;margin-top:14px}
+.dots span{width:20px;height:5px;border-radius:3px;background:rgba(255,255,255,.14)}
+.dots span.on{background:var(--cc);box-shadow:0 0 8px var(--cc)}
+.ctext{font-family:var(--disp);font-weight:800;font-size:26px;line-height:1.18;margin:auto 0;letter-spacing:-.5px}
+.pen{font-size:13px;color:var(--mut);display:flex;gap:7px;margin-bottom:14px}.pen b{color:var(--red);font-weight:600}
+.cbtns{display:flex;gap:10px;flex-wrap:wrap}.cbtns .btn{flex:1;min-width:120px;font-size:15px;padding:14px}
+
+/* RECAP */
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:14px;
+  background:var(--surface2);border:1px solid var(--line);margin-bottom:8px}
+.rrow .n{font-family:var(--disp);font-weight:600}.rrow .s{color:var(--pink);font-weight:600}
+.rrow.first{border-color:var(--pink);box-shadow:0 0 0 1px var(--pink)}
+.tmr{margin:14px 0;text-align:center;display:none}
+.tnum{font-family:var(--disp);font-weight:800;font-size:54px;line-height:1;color:var(--cc);text-shadow:0 0 20px var(--cc)}
+.tnum.warn{color:var(--red);text-shadow:0 0 20px var(--red);animation:tpulse .5s ease infinite}
+@keyframes tpulse{50%{transform:scale(1.12)}}
+.tstart{margin:10px auto 0;max-width:200px}
+.cft{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;z-index:25;animation:fall 1.5s ease-in forwards}
+@keyframes fall{to{transform:translateY(120vh) rotate(540deg);opacity:.2}}
+.flash{position:absolute;inset:0;z-index:30;pointer-events:none;animation:flf .4s ease-out forwards}
+@keyframes flf{0%{opacity:.55}100%{opacity:0}}
+#heatglow{position:absolute;inset:0;z-index:0;pointer-events:none;transition:background .6s ease}
+.screen{position:relative;z-index:1}
+.heat{position:relative}
+.htoast{position:absolute;right:4px;top:-4px;color:var(--pink);font-weight:600;font-size:13px;pointer-events:none;animation:htf .9s ease-out forwards}
+@keyframes htf{to{transform:translateY(-20px);opacity:0}}
+.pedina{position:absolute;width:18px;height:18px;border-radius:50%;z-index:5;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--cyan));box-shadow:0 0 14px var(--cyan),0 0 4px #fff;
+  transition:left .16s linear,top .16s linear;animation:ppulse 1.5s ease-in-out infinite}
+@keyframes ppulse{50%{box-shadow:0 0 24px var(--cyan),0 0 7px #fff}}
+.pbar{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;-webkit-overflow-scrolling:touch}
+.pbar::-webkit-scrollbar{display:none}
+.pchip{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line)}
+.pchip.cur{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan);background:#202a36}
+.pchip .pr{font-family:var(--disp);font-weight:700;font-size:12px;color:var(--mut2);min-width:12px}
+.pchip .pn{font-size:13px;color:#D7D5E2;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pchip .ps{font-family:var(--disp);font-weight:700;font-size:14px;color:var(--pink);white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="heatglow"></div>
+
+  <!-- SETUP -->
+  <section class="screen on" id="setup">
+    <div class="logo">GIRO</div>
+    <div class="tag">tira · pesca · bevi</div>
+    <div style="margin-top:30px">
+      <p class="label">Modalità</p>
+      <div class="seg" id="segMode">
+        <button data-m="standard" class="on">Standard</button>
+        <button data-m="hardcore">Hardcore</button>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <p class="label">Vibe</p>
+      <div class="vibes" id="vibes">
+        <div class="vibe" data-v="boys"><div class="em">🔥</div><div class="nm">Boys</div></div>
+        <div class="vibe on" data-v="misto"><div class="em">💞</div><div class="nm">Misto</div></div>
+        <div class="vibe" data-v="fuori"><div class="em">🍸</div><div class="nm">Fuori</div></div>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <p class="label">Giocatori</p>
+      <div class="prow">
+        <input id="pin" placeholder="Aggiungi un nome" maxlength="14">
+        <button class="iadd" onclick="addP()">+</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn" onclick="start()">Inizia la serata</button>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="game">
+    <div class="ghead" style="flex-wrap:wrap;gap:6px">
+      <span class="pill" id="pillVibe" onclick="cycleVibe()"></span>
+      <span class="pill" id="pillMode" onclick="toggleMode()"></span>
+      <span class="pill" id="pillLast" onclick="lastLap()">🏁 Ultimo giro</span>
+      <span class="pill" id="pillSnd" onclick="toggleSnd()">🔊</span>
+      <span class="pill" id="pillSurp" onclick="toggleSurprise()">🎲 Sorprese</span>
+    </div>
+    <div class="heat">
+      <div class="heatbar"><div class="heatfill" id="heatfill" style="width:55%"></div></div>
+      <div class="heatrow"><span>Heat</span><span id="heatval">55</span></div>
+    </div>
+    <div class="pbar" id="players"></div>
+    <div id="board"><div class="track"></div>
+      <div class="bc"><div class="big" id="bcN">0</div><div class="sub" id="bcS">giro 1</div></div>
+    </div>
+    <div class="center">
+      <div class="who"><small>Tocca a</small><span id="who">—</span></div>
+      <div class="die" id="die"></div>
+      <button class="btn" id="rollBtn" onclick="roll()" style="max-width:240px">Tira il dado</button>
+    </div>
+  </section>
+
+  <!-- RECAP -->
+  <section class="screen" id="recap">
+    <h1 style="font-size:30px;margin-bottom:4px">Fine serata</h1>
+    <p style="color:var(--mut);font-size:14px;margin-bottom:20px">Chi ha bevuto di più stasera.</p>
+    <div id="rlist" style="flex:1;overflow:auto"></div>
+    <button class="btn" onclick="reset()">Nuova partita</button>
+  </section>
+
+  <!-- CARD OVERLAY -->
+  <div id="overlay"><div class="card">
+    <span class="cat"></span>
+    <div class="dots"></div>
+    <p class="ctext"></p>
+    <div class="tmr"></div>
+    <p class="pen"></p>
+    <div class="cbtns"></div>
+  </div></div>
+
+</div>
+<script>
+const DECK = [{"id": "scm_01", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Mostra l'ultima foto che hai ricevuto nei DM.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_02", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "scelto", "testo": "Chi a tavola ti ha deluso di piu nell'ultimo anno? Dillo guardandolo.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_03", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "La figura peggiore che hai fatto da ubriaco. Tutta.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_04", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Apri l'ultima chat e leggi ad alta voce l'ultimo messaggio. Senza saltare.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_05", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Chi tra i presenti ti ha fatto effetto la prima volta? Indicalo.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_06", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Il tuo bodycount. Numero vero, niente bugie.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_07", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Chi e la tua ultima cotta su Instagram? Mostra il profilo.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_08", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "statica", "target": "self", "testo": "Quanto hai speso in stupidaggini nell'ultimo mese? Confessa.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_09", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "gruppo", "testo": "Mostra le ultime 3 ricerche su Google. Senza censura.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_10", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "scelto", "testo": "La prima cosa che pensasti la prima volta che hai visto chi e alla tua sinistra.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_11", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Il segreto piu grosso che il gruppo non sa di te. Spara.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_12", "cat": "scomode", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Una cosa di cui ti vergogni del passato. Rifaresti?", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_13", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "gruppo", "testo": "Ordina i presenti dal piu al meno affidabile. Ad alta voce.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_14", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "self", "testo": "Il momento piu hot della tua vita in 3 frasi. Quanto osi tu.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_01", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 2, "tipo": "timer", "target": "scelto", "testo": "Fissa negli occhi chi vuoi per 15s senza ridere. Chi cede beve.", "pen": 2, "timer": 15, "risp": "", "regola": ""}, {"id": "pic_02", "cat": "piccanti", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Chi del gruppo ti ha fatto la miglior prima impressione?", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_03", "cat": "piccanti", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "statica", "target": "self", "testo": "Tre parole per il tuo tipo ideale. Vai.", "pen": 1, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_04", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Bacio a stampo alla persona piu attraente del tavolo. O 3 sorsi.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_05", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Sussurra all'orecchio del vicino la cosa piu audace che ti passa per la testa.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_06", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "timer", "target": "gruppo", "testo": "Balla in modo sexy 15s davanti al gruppo. O 3 sorsi.", "pen": 3, "timer": 15, "risp": "", "regola": ""}, {"id": "pic_07", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "gruppo", "testo": "Kiss, Marry, Avoid tra tre presenti a scelta del gruppo.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_08", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "La cosa piu audace che diresti ad alta voce: dilla, quanto osi tu.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_09", "cat": "piccanti", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "A chi del tavolo manderesti un messaggio alle 2 di notte? Di' il nome.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_10", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "scelto", "testo": "Fai un complimento spinto a chi vuoi, guardandolo negli occhi.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_11", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "timer", "target": "coppia", "testo": "Tu e chi vuoi: 10s di sguardo intenso senza ridere. Chi cede beve doppio.", "pen": 2, "timer": 10, "risp": "", "regola": ""}, {"id": "pic_12", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Siediti in braccio a un presente per un giro intero. O bevi 4.", "pen": 4, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_13", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "statica", "target": "scelto", "testo": "Bacio a stampo con chi vuoi al tavolo. O 4 sorsi.", "pen": 4, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_14", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 4, "tipo": "timer", "target": "scelto", "testo": "Lap dance scherzosa di 10s a chi vuoi. O 4 sorsi.", "pen": 4, "timer": 10, "risp": "", "regola": ""}, {"id": "sfd_01", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Imita uno del gruppo finche non lo indovinano. 30s.", "pen": 3, "timer": 30, "risp": "", "regola": ""}, {"id": "sfd_02", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Parla con accento straniero finche non e di nuovo il tuo turno.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_03", "cat": "sfide", "vibe": ["boys"], "heat": 3, "tipo": "statica", "target": "coppia", "testo": "Braccio di ferro col vicino di destra. Chi perde, doppio sorso.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_04", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Vai da uno sconosciuto, digli che e molto carino e chiedigli l'Instagram. Riesci? 1 sorso a chi vuoi. Fallisci? Bevi 2.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_05", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Canta il ritornello dell'ultima canzone che hai ascoltato. In piedi.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_06", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "statica", "target": "self", "testo": "Parla solo in rima finche non tocca di nuovo a te.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_07", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Resta in equilibrio su una gamba per tutto il giro. Tocchi terra? Bevi.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_08", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Posta una storia con la faccia piu seria del mondo e un saluto a caso.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_09", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Imita un personaggio famoso, gli altri indovinano. 20s.", "pen": 2, "timer": 20, "risp": "", "regola": ""}, {"id": "sfd_10", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Telefona a un amico non presente e digli 'ti voglio bene' senza spiegare.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_11", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Fai 10 flessioni adesso. O bevi 3.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_12", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "statica", "target": "self", "testo": "Parla con la voce di un cartone finche non e di nuovo il tuo turno.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "tmp_01", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "timer", "target": "self", "testo": "Nomina 6 marche di birra in 10s. VAI!", "pen": 2, "timer": 10, "risp": "", "regola": ""}, {"id": "tmp_02", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Conta da 30 a 0 a salti di 3, senza sbagliare. 15s.", "pen": 2, "timer": 15, "risp": "", "regola": ""}, {"id": "tmp_03", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "gruppo", "testo": "L'ultimo a toccarsi il naso beve. ...ORA!", "pen": 1, "timer": 3, "risp": "", "regola": ""}, {"id": "tmp_04", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "timer", "target": "self", "testo": "5 capitali europee in 10s. Via!", "pen": 2, "timer": 10, "risp": "", "regola": ""}, {"id": "tmp_05", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Di' l'alfabeto al contrario. 20s.", "pen": 2, "timer": 20, "risp": "", "regola": ""}, {"id": "tmp_06", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Scioglilingua: 'tre tigri contro tre tigri' x3, veloce.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "tmp_07", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "gruppo", "testo": "Categoria marche di auto: a turno, chi si blocca in 3s beve.", "pen": 1, "timer": 3, "risp": "", "regola": ""}, {"id": "tmp_08", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Ripeti la sequenza di 4 parole che dice il gruppo. Sbagli? Bevi.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "tmp_09", "cat": "tempo", "vibe": ["boys", "misto"], "heat": 3, "tipo": "timer", "target": "scelto", "testo": "Sfida di sguardi col vicino: il primo che ride beve. 15s.", "pen": 1, "timer": 15, "risp": "", "regola": ""}, {"id": "tmp_10", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "timer", "target": "self", "testo": "Nomina 7 film in 15s. Via!", "pen": 2, "timer": 15, "risp": "", "regola": ""}, {"id": "trv_01", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "In che anno e caduto il Muro di Berlino?", "pen": 2, "timer": 0, "risp": "1989", "regola": ""}, {"id": "trv_02", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "Quante squadre giocano in Serie A?", "pen": 2, "timer": 0, "risp": "20", "regola": ""}, {"id": "trv_03", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "gruppo", "testo": "Chi nomina piu capitali europee in 30s vince, gli altri bevono.", "pen": 1, "timer": 30, "risp": "", "regola": ""}, {"id": "trv_04", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "Qual e il pianeta piu grande del Sistema Solare?", "pen": 2, "timer": 0, "risp": "Giove", "regola": ""}, {"id": "trv_05", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "Chi ha diretto 'Pulp Fiction'?", "pen": 2, "timer": 0, "risp": "Tarantino", "regola": ""}, {"id": "trv_06", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "In che citta si trova il Colosseo?", "pen": 2, "timer": 0, "risp": "Roma", "regola": ""}, {"id": "trv_07", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "Quanti tasti neri ha un'ottava di pianoforte?", "pen": 2, "timer": 0, "risp": "5", "regola": ""}, {"id": "trv_08", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "Chi canta 'Bohemian Rhapsody'?", "pen": 2, "timer": 0, "risp": "Queen", "regola": ""}, {"id": "trv_09", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "In che anno l'Italia ha vinto l'ultimo Mondiale?", "pen": 2, "timer": 0, "risp": "2006", "regola": ""}, {"id": "trv_10", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "Capitale dell'Australia?", "pen": 2, "timer": 0, "risp": "Canberra", "regola": ""}, {"id": "trv_11", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "Quanti anni dura il mandato del Presidente della Repubblica italiana?", "pen": 2, "timer": 0, "risp": "7", "regola": ""}, {"id": "trv_12", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "gruppo", "testo": "Stima: quanti km separano Torino da Napoli? Il piu vicino fa bere gli altri.", "pen": 1, "timer": 0, "risp": "", "regola": ""}, {"id": "trv_13", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "trivia", "target": "self", "testo": "Chi ha dipinto la Gioconda?", "pen": 2, "timer": 0, "risp": "Leonardo", "regola": ""}, {"id": "trv_14", "cat": "trivia", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "trivia", "target": "self", "testo": "In che film c'e la frase 'Houston, abbiamo un problema'?", "pen": 2, "timer": 0, "risp": "Apollo 13", "regola": ""}, {"id": "cls_01", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "CASCATA. Si beve in sequenza: smetti solo quando smette chi ti sta prima.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "cls_02", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "IO NON HO MAI... chi l'ha fatto beve. Inizia chi ha pescato.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "cls_03", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "POLLICE. Chi pesca, a sorpresa mette il pollice sul tavolo. L'ultimo a copiare beve.", "pen": 0, "timer": 0, "risp": "", "regola": "Pollice sul tavolo: l'ultimo a copiare beve"}, {"id": "cls_04", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "CATEGORIE: il gruppo sceglie un tema, uno a testa a giro. Chi si blocca beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "cls_05", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "REGOLA: vietato dire 'si' e 'no' fino al prossimo giro. Chi sbaglia, sorso.", "pen": 0, "timer": 0, "risp": "", "regola": "Vietato dire si e no"}, {"id": "cls_06", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "NUMERO PROIBITO: si conta a giro, vietato il 7 e i multipli. Sbagli? Bevi.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "cls_07", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "ROSSO O NERO: indovini il colore della prossima carta? Distribuisci un sorso. Sbagli? Bevi.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "cls_08", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "REGINA: chi pesca comanda per un giro, tutti devono imitarlo.", "pen": 0, "timer": 0, "risp": "", "regola": "Imita la Regina per un giro"}, {"id": "bon_01", "cat": "bonus", "vibe": ["boys", "misto"], "heat": 3, "tipo": "gruppo", "target": "gruppo", "testo": "DOMANDA DI GRUPPO. Mani alzate: chi l'ha gia combinata in un posto pubblico? La minoranza beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_02", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "TUTTI QUELLI CHE hanno un ex ancora tra i contatti... bevono.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_03", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "VOTAZIONE. Chi rimorchierebbe meglio stasera? Il piu votato fa un cul sec.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_04", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "BRINDISI. Tutti in piedi, si brinda e si beve insieme.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_05", "cat": "bonus", "vibe": ["boys", "misto"], "heat": 3, "tipo": "gruppo", "target": "gruppo", "testo": "DOMANDA DI GRUPPO. Chi ha mandato un messaggio bollente questa settimana? Minoranza beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_06", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "TUTTI QUELLI CHE oggi hanno controllato l'ex sui social... bevono.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_07", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "MINI-GIOCO: sasso-carta-forbice tutti insieme a eliminazione. L'ultimo distribuisce 3 sorsi.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_08", "cat": "bonus", "vibe": ["boys", "misto"], "heat": 4, "tipo": "gruppo", "target": "gruppo", "testo": "DOMANDA DI GRUPPO. Chi ha avuto un'avventura di una notte? La minoranza beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_09", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo che ha controllato il telefono, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_10", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo tornato dal bagno, beve 2.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_11", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo che ha riso, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_12", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo arrivato stasera, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_13", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo che ha brindato, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_14", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo che ha detto una parolaccia, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_15", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo che ha postato una storia, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_16", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo a finire il bicchiere offre il prossimo giro.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_17", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo che ha nominato un ex, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "bon_18", "cat": "bonus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "L'ultimo che si e alzato in piedi, beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_01", "cat": "malus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "diretto", "target": "self", "testo": "BEVI. 2 sorsi, diretti. Niente storie.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_02", "cat": "malus", "vibe": ["boys", "misto"], "heat": 2, "tipo": "diretto", "target": "self", "testo": "SHOT secco. Adesso.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_03", "cat": "malus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "diretto", "target": "scelto", "testo": "Bevi tu + trascini uno a scelta. In due.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_04", "cat": "malus", "vibe": ["boys", "misto"], "heat": 2, "tipo": "diretto", "target": "self", "testo": "FONDO. Finisci quello che hai nel bicchiere.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_05", "cat": "malus", "vibe": ["boys", "misto"], "heat": 3, "tipo": "diretto", "target": "gruppo", "testo": "CATENA. Bevi e parte la catena: il prossimo il doppio.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_06", "cat": "malus", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "diretto", "target": "scelto", "testo": "Regala un sorso a chi vuoi... ma ne bevi uno anche tu.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_15", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Bacio sul collo a chi vuoi. O 3 sorsi.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_16", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Il posto piu assurdo dove hai pomiciato. Confessa.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_17", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Chi del tavolo ti porteresti a casa stasera? Indicalo.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "pic_18", "cat": "piccanti", "vibe": ["boys", "misto"], "heat": 3, "tipo": "timer", "target": "self", "testo": "Mima la tua mossa di seduzione migliore. 15s.", "pen": 2, "timer": 15, "risp": "", "regola": ""}, {"id": "pic_19", "cat": "piccanti", "vibe": ["misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Descrivi com'e baciare bene, guardando chi vuoi.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_15", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "L'ultimo messaggio hot che hai mandato: leggilo. O 3 sorsi.", "pen": 3, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_16", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "self", "testo": "Quante persone hai baciato questo mese? Numero esatto.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "scm_17", "cat": "scomode", "vibe": ["boys", "misto"], "heat": 3, "tipo": "statica", "target": "scelto", "testo": "Di' a chi vuoi cosa cambieresti di lui o lei. Senza filtri.", "pen": 2, "timer": 0, "risp": "", "regola": ""}, {"id": "sfd_13", "cat": "sfide", "vibe": ["boys", "misto"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Balletto sexy a tempo di musica immaginaria. 20s.", "pen": 3, "timer": 20, "risp": "", "regola": ""}, {"id": "sfd_14", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Convinci il gruppo che sei sobrio con uno scioglilingua. 15s.", "pen": 2, "timer": 15, "risp": "", "regola": ""}, {"id": "sfd_15", "cat": "sfide", "vibe": ["boys"], "heat": 3, "tipo": "timer", "target": "coppia", "testo": "Gara di flessioni col vicino. 20s, chi ne fa meno beve.", "pen": 2, "timer": 20, "risp": "", "regola": ""}, {"id": "sfd_16", "cat": "sfide", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Trova un oggetto blu in giro prima dello scadere. 15s.", "pen": 2, "timer": 15, "risp": "", "regola": ""}, {"id": "tmp_11", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "self", "testo": "Di' 8 cose che ti fanno arrapare... no, 8 marche di scarpe. 12s!", "pen": 2, "timer": 12, "risp": "", "regola": ""}, {"id": "tmp_12", "cat": "tempo", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "timer", "target": "gruppo", "testo": "Sguardo fisso col vicino: il primo che ride o parla beve. 15s.", "pen": 1, "timer": 15, "risp": "", "regola": ""}, {"id": "cls_09", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "gruppo", "target": "gruppo", "testo": "RE/REGINA: chi pesca fa una regola, vale fino al prossimo giro.", "pen": 0, "timer": 0, "risp": "", "regola": "Regola scelta da chi pesca"}, {"id": "cls_10", "cat": "classici", "vibe": ["boys", "misto", "fuori"], "heat": 1, "tipo": "gruppo", "target": "gruppo", "testo": "DITO: a sorpresa tutti puntano un dito su uno. Il piu puntato beve.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_07", "cat": "malus", "vibe": ["boys", "misto", "fuori"], "heat": 2, "tipo": "diretto", "target": "self", "testo": "DOPPIO: due sorsi, ora.", "pen": 0, "timer": 0, "risp": "", "regola": ""}, {"id": "mal_08", "cat": "malus", "vibe": ["boys", "misto"], "heat": 3, "tipo": "diretto", "target": "scelto", "testo": "ROULETTE: indica uno. Lancia il dado: pari bevi tu, dispari beve lui.", "pen": 0, "timer": 0, "risp": "", "regola": ""}];
+const CAT = {
+  scomode:{emo:'❓',c:'#FFB020',nm:'Scomode'}, piccanti:{emo:'🌶️',c:'#FF2E8B',nm:'Piccanti'},
+  sfide:{emo:'🎯',c:'#2EE6D6',nm:'Sfide'}, tempo:{emo:'⏱️',c:'#7A5CFF',nm:'A tempo'},
+  trivia:{emo:'🧠',c:'#3B9DFF',nm:'Trivia'}, classici:{emo:'🍺',c:'#3DDC84',nm:'Classici'},
+  bonus:{emo:'🎁',c:'#FFD23F',nm:'Bonus'}, malus:{emo:'💀',c:'#FF4D4D',nm:'Malus'}
+};
+const SP = {
+  mina:{emo:'💣',c:'#FF4D4D'}, jackpot:{emo:'🎰',c:'#FFD23F'}, duello:{emo:'⚡',c:'#2EE6D6'},
+  evento:{emo:'🌊',c:'#7A5CFF'}, caos:{emo:'🔄',c:'#A29FB6'}, surriscalda:{emo:'🌡️',c:'#FFB020'}, checkpoint:{emo:'🏁',c:'#3DDC84'}, classifica:{emo:'📊',c:'#FF8A5C'}
+};
+const BOARD = [
+ {t:'checkpoint'},{t:'cat',cat:'scomode'},{t:'cat',cat:'sfide'},{t:'mina'},{t:'cat',cat:'piccanti'},
+ {t:'cat',cat:'tempo'},{t:'jackpot'},{t:'cat',cat:'trivia'},{t:'classifica'},{t:'evento'},
+ {t:'cat',cat:'sfide'},{t:'cat',cat:'piccanti'},{t:'duello'},{t:'cat',cat:'tempo'},{t:'mina'},
+ {t:'cat',cat:'classici'},{t:'cat',cat:'scomode'},{t:'cat',cat:'piccanti'},{t:'surriscalda'},{t:'cat',cat:'sfide'},
+ {t:'cat',cat:'trivia'},{t:'jackpot'},{t:'classifica'},{t:'caos'},{t:'mina'},
+ {t:'cat',cat:'classici'},{t:'duello'},{t:'evento'}
+];
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+
+let S = { modalita:'standard', vibe:'misto', players:['Luca','Sara','Marco','Giulia'],
+  turn:0, pos:0, lap:1, heat:55, sips:{}, jolly:{}, ultimoGiro:false, used:{}, rolling:false, cur:null };
+
+/* ===== EFFETTI ===== */
+let AC, master, sound=true, timerIV;
+function ac(){ if(!AC){ AC=new (window.AudioContext||window.webkitAudioContext)(); master=AC.createGain(); master.gain.value=.55; master.connect(AC.destination); }
+  if(AC.state==='suspended') AC.resume(); return AC; }
+function tone(f,o){ if(!sound)return; o=o||{}; const a=ac(),osc=a.createOscillator(),g=a.createGain(); osc.type=o.type||'sine'; osc.frequency.value=f;
+  if(o.lp){ const lp=a.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=o.lp; osc.connect(lp); lp.connect(g); } else osc.connect(g);
+  g.connect(master); const t=a.currentTime, du=o.dur||.2, v=o.vol||.3, at=o.attack||.005;
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+at); g.gain.exponentialRampToValueAtTime(.0001,t+du);
+  if(o.glide){ osc.frequency.setValueAtTime(f,t); osc.frequency.exponentialRampToValueAtTime(o.glide,t+du); } osc.start(t); osc.stop(t+du+.02); }
+function noise(o){ if(!sound)return; o=o||{}; const a=ac(), du=o.dur||.2, len=Math.max(1,Math.floor(du*a.sampleRate));
+  const buf=a.createBuffer(1,len,a.sampleRate), d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+  const s=a.createBufferSource(); s.buffer=buf; const f=a.createBiquadFilter(); f.type=o.ftype||'lowpass'; f.frequency.value=o.freq||1200;
+  const g=a.createGain(); s.connect(f); f.connect(g); g.connect(master); const t=a.currentTime, v=o.vol||.2;
+  g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.0001,t+du);
+  if(o.sweep){ f.frequency.setValueAtTime(o.freq||1200,t); f.frequency.exponentialRampToValueAtTime(o.sweep,t+du); } s.start(t); s.stop(t+du); }
+function bell(f,delay,v){ if(!sound)return; const a=ac(); [1,2,3.01].forEach((m,i)=>{ const o=a.createOscillator(),g=a.createGain(); o.type='sine'; o.frequency.value=f*m;
+  o.connect(g); g.connect(master); const t=a.currentTime+(delay||0), vv=(v||.3)/(i+1);
+  g.gain.setValueAtTime(vv,t); g.gain.exponentialRampToValueAtTime(.0001,t+.5); o.start(t); o.stop(t+.55); }); }
+function sfx(n){ if(!sound)return; ac();
+  if(n==='dice') noise({dur:.04,freq:3000,ftype:'highpass',vol:.12});
+  else if(n==='step') noise({dur:.025,freq:2000,ftype:'bandpass',vol:.06});
+  else if(n==='draw') tone(420,{type:'sine',dur:.18,vol:.26,glide:760,lp:2600});
+  else if(n==='done'){ bell(660,0,.28); bell(990,.08,.22); }
+  else if(n==='penalty'){ tone(150,{type:'sine',dur:.32,vol:.34,glide:60,lp:500}); noise({dur:.12,freq:320,vol:.16}); }
+  else if(n==='jackpot') [523,659,784,1046,1318].forEach((f,i)=>bell(f,i*.08,.26));
+  else if(n==='alarm'){ let i=0; const iv=setInterval(()=>{ tone(i%2?523:392,{type:'triangle',dur:.18,vol:.3,lp:1800}); if(++i>5)clearInterval(iv); },150); }
+  else if(n==='tick') noise({dur:.03,freq:5200,ftype:'highpass',vol:.1});
+  else if(n==='time'){ tone(180,{type:'sine',dur:.5,vol:.34,glide:80,lp:600}); noise({dur:.3,freq:220,vol:.18}); }
+  else if(n==='reveal') tone(330,{type:'triangle',dur:.5,vol:.25,glide:900,lp:3200});
+}
+function buzz(p){ if(navigator.vibrate){ try{ navigator.vibrate(p); }catch(e){} } }
+function flash(c){ const f=document.createElement('div'); f.className='flash'; f.style.background=c;
+  document.getElementById('app').appendChild(f); setTimeout(()=>f.remove(),420); }
+function confetti(){ const ov=document.getElementById('overlay'); const cols=['#FF2E8B','#7A5CFF','#2EE6D6','#FFD23F','#3DDC84'];
+  for(let i=0;i<26;i++){ const s=document.createElement('span'); s.className='cft';
+    s.style.left=(8+Math.random()*84)+'%'; s.style.background=cols[i%5];
+    s.style.animationDelay=(Math.random()*.3)+'s'; ov.appendChild(s); setTimeout(()=>s.remove(),1700); } }
+function toggleSnd(){ sound=!sound; document.getElementById('pillSnd').textContent=sound?'🔊':'🔇'; if(sound) ac(); }
+function startTimer(sec){ const el=document.querySelector('.tnum'), btn=document.querySelector('.tstart');
+  if(btn) btn.style.display='none'; let left=sec; clearInterval(timerIV);
+  timerIV=setInterval(()=>{ left--; if(el) el.textContent=left;
+    if(left<=3&&left>0){ if(el)el.classList.add('warn'); sfx('tick'); buzz(40); }
+    if(left<=0){ clearInterval(timerIV); sfx('time'); buzz([120,60,120]); flash('rgba(255,77,77,.5)'); if(el) el.textContent='STOP!'; } },1000);
+}
+
+/* ===== SORPRESE (sfida del tavolo / power hour, casuali) ===== */
+let surpriseIV=null, surpriseOn=true;
+const TAVOLO=[
+ {e:'🍻 Brindisi del tavolo', s:'Tutti in piedi, si brinda e si beve insieme!', f:()=>allDrink(1)},
+ {e:'🔥 Power Hour', s:'Mini brindisi a sorpresa: tutti due sorsi!', f:()=>allDrink(2)},
+ {e:'👇 Pollice', s:"L'ultimo a mettere il pollice sul tavolo beve 2.", f:()=>{}},
+ {e:'🗣️ Una parola', s:'A giro, una parola sulla serata: chi esita o ripete beve.', f:()=>{}},
+ {e:'🤜 Braccio di ferro', s:'A coppie: chi perde beve. Pari e patta? Bevete entrambi.', f:()=>{}},
+ {e:'📸 Foto seria', s:'Selfie tutti insieme con la faccia piu seria. Chi ride beve.', f:()=>{}},
+ {e:'🎤 Karaoke flash', s:'Tutti cantano il ritornello che parte ora. Chi non lo sa, beve.', f:()=>{}},
+ {e:'🙅 Mai stato qui', s:'Chi non e mai stato in questa casa/locale beve. Senno bevono gli altri.', f:()=>{}}
+];
+function scheduleSurprise(){ clearTimeout(surpriseIV); if(!surpriseOn) return;
+  surpriseIV=setTimeout(fireSurprise, 60000+Math.random()*90000); }
+function fireSurprise(){ if(!surpriseOn) return;
+  const ov=document.getElementById('overlay');
+  if(S.rolling || ov.classList.contains('show')){ surpriseIV=setTimeout(fireSurprise, 8000); return; }
+  const e=TAVOLO[Math.floor(Math.random()*TAVOLO.length)]; e.f(); updatePlayers();
+  sfx('alarm'); flash('rgba(46,230,214,.4)'); buzz([120,60,120,60,120]);
+  S.surprise=true;
+  const cd=ov.querySelector('.card'); cd.style.setProperty('--cc','#2EE6D6');
+  ov.querySelector('.cat').textContent='🎲 SFIDA DEL TAVOLO'; ov.querySelector('.dots').innerHTML='';
+  ov.querySelector('.ctext').textContent=e.e+' — '+e.s;
+  ov.querySelector('.pen').style.display='none'; ov.querySelector('.tmr').style.display='none';
+  ov.querySelector('.cbtns').innerHTML='<button class="btn" onclick="closeSurprise()">Ok</button>'; ov.classList.add('show');
+  scheduleSurprise();
+}
+function closeSurprise(){ S.surprise=false; sfx('done'); document.getElementById('overlay').classList.remove('show'); }
+function toggleSurprise(){ surpriseOn=!surpriseOn; document.getElementById('pillSurp').textContent=surpriseOn?'🎲 Sorprese':'🎲 Off'; if(surpriseOn) scheduleSurprise(); else clearTimeout(surpriseIV); }
+
+function tierRange(){ const h=S.heat;
+  if(S.modalita==='standard') return {mn:1, mx:h<34?1:h<67?2:3};
+  return {mn:2, mx:h<50?2:h<80?3:4}; }
+function vibeOk(c){ return c.vibe.includes(S.vibe); }
+function draw(cat){
+  const {mn,mx}=tierRange(); if(!S.used[cat]) S.used[cat]=[];
+  let p=DECK.filter(c=>c.cat===cat&&vibeOk(c)&&c.heat>=mn&&c.heat<=mx&&!S.used[cat].includes(c.id));
+  if(!p.length){ S.used[cat]=[]; p=DECK.filter(c=>c.cat===cat&&vibeOk(c)&&c.heat>=mn&&c.heat<=mx); }
+  if(!p.length) p=DECK.filter(c=>c.cat===cat&&vibeOk(c));
+  if(!p.length) p=DECK.filter(c=>c.cat===cat);
+  const c=p[Math.floor(Math.random()*p.length)]; if(c) S.used[cat].push(c.id); return c;
+}
+function drawDuello(){ const p=DECK.filter(c=>(c.cat==='tempo'||c.cat==='trivia')&&vibeOk(c)); return p[Math.floor(Math.random()*p.length)]; }
+function who(){ return S.players[S.turn]; }
+
+// SETUP
+function renderChips(){ const el=document.getElementById('chips');
+  el.innerHTML=S.players.map((n,i)=>'<span class="chip">'+n+' <b onclick="delP('+i+')">×</b></span>').join(''); }
+function addP(){ const i=document.getElementById('pin'); const v=i.value.trim();
+  if(v && S.players.length<12){ S.players.push(v); i.value=''; renderChips(); } i.focus(); }
+function delP(i){ S.players.splice(i,1); renderChips(); }
+document.getElementById('segMode').onclick=e=>{ if(e.target.dataset.m){ S.modalita=e.target.dataset.m;
+  [...e.currentTarget.children].forEach(b=>b.classList.toggle('on',b.dataset.m===S.modalita)); } };
+document.getElementById('vibes').onclick=e=>{ const d=e.target.closest('.vibe'); if(d){ S.vibe=d.dataset.v;
+  [...e.currentTarget.children].forEach(v=>v.classList.toggle('on',v.dataset.v===S.vibe)); } };
+document.getElementById('pin').addEventListener('keydown',e=>{ if(e.key==='Enter') addP(); });
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); document.getElementById(id).classList.add('on'); }
+function start(){ if(S.players.length<2){ alert('Servono almeno 2 giocatori'); return; }
+  S.turn=0; S.pos=0; S.lap=1; S.heat=55; S.sips={}; S.jolly={}; S.ultimoGiro=false; S.used={};
+  show('game'); renderDie(5); renderBoard(); renderTurn(); scheduleSurprise(); }
+window.addEventListener('resize',()=>{ if(document.getElementById('game').classList.contains('on')) renderBoard(); });
+
+// GAME
+function renderDie(n){ const d=document.getElementById('die'); let h='';
+  for(let i=0;i<9;i++) h+='<i class="pip'+(PIPS[n].includes(i)?'':' off')+'"></i>'; d.innerHTML=h; }
+function boardGeo(){ const b=document.getElementById('board'); const W=b.clientWidth||300; return {c:W/2,R:W/2-16}; }
+function tileXY(i){ const g=S._geo||boardGeo(); const a=(-90+i*(360/28))*Math.PI/180; return {x:g.c+g.R*Math.cos(a), y:g.c+g.R*Math.sin(a)}; }
+function renderBoard(){ const b=document.getElementById('board'); S._geo=boardGeo();
+  b.querySelectorAll('.tile,.pedina').forEach(e=>e.remove());
+  BOARD.forEach((t,i)=>{ const m=t.t==='cat'?CAT[t.cat]:SP[t.t]; const {x,y}=tileXY(i); const sz=24;
+    const el=document.createElement('div'); el.className='tile';
+    el.style.left=(x-sz/2)+'px'; el.style.top=(y-sz/2)+'px'; el.style.width=sz+'px'; el.style.height=sz+'px';
+    el.style.borderColor=m.c; el.textContent=m.emo; b.appendChild(el); });
+  const p=document.createElement('div'); p.className='pedina'; p.id='pedina'; b.appendChild(p);
+  setPedina(S.pos); document.getElementById('bcS').textContent='giro '+S.lap;
+}
+function setPedina(i){ const p=document.getElementById('pedina'); if(!p) return; const {x,y}=tileXY(i);
+  p.style.left=(x-9)+'px'; p.style.top=(y-9)+'px'; document.getElementById('bcN').textContent=i; }
+function updatePlayers(){ const el=document.getElementById('players'); if(!el) return;
+  const arr=S.players.map((p,i)=>({p,n:S.sips[p]||0,cur:i===S.turn})).sort((a,b)=>b.n-a.n);
+  el.innerHTML=arr.map((o,r)=>'<div class="pchip'+(o.cur?' cur':'')+'"><span class="pr">'+(r+1)+'</span><span class="pn">'+o.p+'</span><span class="ps">'+o.n+' 🍺</span></div>').join(''); }
+function renderTurn(){ document.getElementById('who').textContent=who(); updatePlayers();
+  document.getElementById('pillVibe').textContent=({boys:'🔥 Boys',misto:'💞 Misto',fuori:'🍸 Fuori'})[S.vibe];
+  document.getElementById('pillMode').textContent=(S.modalita==='hardcore'?'🔥 Hardcore':'✨ Standard');
+  document.getElementById('pillLast').style.opacity=S.ultimoGiro?'.45':'1';
+  updateHeat(); }
+function rgba(c,a){ const n=parseInt(c.slice(1),16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+function heatToast(d){ const w=document.querySelector('.heat'); if(!w) return;
+  const t=document.createElement('div'); t.className='htoast'; t.textContent='+'+d+' 🔥'; w.appendChild(t); setTimeout(()=>t.remove(),900); }
+function updateHeat(){ const h=S.heat;
+  document.getElementById('heatfill').style.width=h+'%';
+  document.getElementById('heatval').textContent=Math.round(h)+(S.ultimoGiro?' · ultimo giro':' · sale');
+  const col = h<50?'#7A5CFF':h<80?'#FF2E8B':'#FF4D4D'; const inten=0.16+(h/100)*0.4;
+  const hg=document.getElementById('heatglow'); if(hg) hg.style.background='radial-gradient(720px 400px at 50% -4%, '+rgba(col,inten)+', transparent 62%)';
+}
+
+function cycleVibe(){ const o=['boys','misto','fuori']; S.vibe=o[(o.indexOf(S.vibe)+1)%3]; renderTurn(); }
+function toggleMode(){ S.modalita=S.modalita==='standard'?'hardcore':'standard'; renderTurn(); }
+function lastLap(){ S.ultimoGiro=true; renderTurn(); }
+
+function roll(){ if(S.rolling) return; S.rolling=true; ac();
+  const die=document.getElementById('die'); die.classList.add('roll');
+  document.getElementById('rollBtn').disabled=true;
+  let t=0; const iv=setInterval(()=>{ renderDie(1+Math.floor(Math.random()*6)); sfx('dice'); if(++t>8){
+    clearInterval(iv); die.classList.remove('roll'); const n=1+Math.floor(Math.random()*6);
+    renderDie(n); buzz(30); S.rolling=false; document.getElementById('rollBtn').disabled=false; move(n); } },80);
+}
+function move(n){ let steps=n, wrapped=false;
+  function step(){
+    if(steps<=0){ updateHeat();
+      if(wrapped && S.ultimoGiro){ setTimeout(endGame,450); return; }
+      setTimeout(resolveTile,320); return; }
+    S.pos=(S.pos+1)%28; setPedina(S.pos); sfx('step'); buzz(12);
+    if(S.pos===0){ S.lap++; document.getElementById('bcS').textContent='giro '+S.lap;
+      S.heat=Math.min(100,S.heat+10); wrapped=true; heatToast(10); updateHeat(); }
+    steps--; setTimeout(step,165);
+  }
+  step();
+}
+function resolveTile(){ const t=BOARD[S.pos];
+  if(t.t==='cat') showCard(draw(t.cat), CAT[t.cat], CAT[t.cat].nm);
+  else if(t.t==='mina'){ flash('rgba(255,77,77,.45)'); sfx('penalty'); buzz([60,40,60]); showCard(draw('malus'), CAT.malus, 'Mina · bevi'); }
+  else if(t.t==='jackpot'){ S.jolly[who()]=(S.jolly[who()]||0)+1; showCard(draw('bonus'), CAT.bonus, 'Jackpot · +1 Jolly'); sfx('jackpot'); confetti(); buzz([30,40,30,40,90]); }
+  else if(t.t==='duello') showCard(drawDuello(), SP.duello, 'Duello ⚡ 1v1', true);
+  else if(t.t==='evento'){ allDrink(1); S.heat=Math.min(100,S.heat+5); heatToast(5); updateHeat(); sfx('alarm'); flash('rgba(122,92,255,.4)'); buzz([100,60,100,60,100]); evt('🌊 Tutti bevono','Tutti un sorso. Heat +5.'); }
+  else if(t.t==='caos'){ buzz([40,40,40]); evt('🔄 Caos','Si gira al contrario per un giro!'); }
+  else if(t.t==='surriscalda'){ S.heat=Math.min(100,S.heat+10); heatToast(10); updateHeat(); flash('rgba(255,176,32,.35)'); buzz([60,30,90]); evt('🌡️ Surriscalda','Heat +10. Si scalda la serata.'); }
+  else if(t.t==='checkpoint'){ S.heat=Math.min(100,S.heat+5); heatToast(5); updateHeat(); buzz(50); evt('🏁 Checkpoint','Bonus giro. Heat +5.','#3DDC84'); }
+  else if(t.t==='classifica') doClassifica();
+}
+function dots(h){ let s=''; for(let i=1;i<=4;i++) s+='<span class="'+(h>=i?'on':'')+'"></span>'; return s; }
+function showCard(card, meta, badge, duello){
+  if(!card){ nextTurn(); return; }
+  S.cur=card; const ov=document.getElementById('overlay'), cd=ov.querySelector('.card');
+  cd.style.setProperty('--cc',meta.c);
+  const isMalus = card.cat==='malus' || card.tipo==='diretto';
+  ov.querySelector('.cat').innerHTML=meta.emo+' '+(badge||meta.nm);
+  ov.querySelector('.dots').innerHTML=dots(card.heat);
+  let tx=card.testo; if(card.tipo==='timer'&&card.timer) tx+=' ⏱️'+card.timer+'s';
+  if(duello) tx+='  · chi perde beve';
+  ov.querySelector('.ctext').textContent=tx;
+  const tmr=ov.querySelector('.tmr');
+  if(card.timer>0){ tmr.style.display='block';
+    tmr.innerHTML='<div class="tnum">'+card.timer+'</div><button class="btn ghost tstart" onclick="startTimer('+card.timer+')">▶ Avvia timer</button>'; }
+  else tmr.style.display='none';
+  const pen=ov.querySelector('.pen');
+  if(card.pen>0 && !isMalus){ pen.style.display='flex'; pen.innerHTML='Rifiuti? <b>'+card.pen+' sorsi</b>'; }
+  else pen.style.display='none';
+  const jol=S.jolly[who()]||0; let b='';
+  if(isMalus){ b='<button class="btn" onclick="doMalus()">Bevi 🍺</button>'; }
+  else { if(jol>0) b+='<button class="btn ghost" onclick="useJolly()">🃏 Salta ('+jol+')</button>';
+    if(card.pen>0) b+='<button class="btn ghost" onclick="refuse('+card.pen+')">Rifiuto</button>';
+    b+='<button class="btn" onclick="doneCard()">Fatto</button>'; }
+  ov.querySelector('.cbtns').innerHTML=b; ov.classList.add('show'); sfx('draw'); buzz(20);
+}
+function evt(title, sub, color){ const ov=document.getElementById('overlay'), cd=ov.querySelector('.card');
+  cd.style.setProperty('--cc',color||'#7A5CFF');
+  ov.querySelector('.cat').textContent=title;
+  ov.querySelector('.dots').innerHTML='';
+  ov.querySelector('.ctext').textContent=sub;
+  ov.querySelector('.pen').style.display='none';
+  ov.querySelector('.tmr').style.display='none';
+  ov.querySelector('.cbtns').innerHTML='<button class="btn" onclick="closeOv()">Ok</button>';
+  ov.classList.add('show');
+}
+function add(p,n){ S.sips[p]=(S.sips[p]||0)+n; updatePlayers(); }
+function allDrink(n){ S.players.forEach(p=>add(p,n)); }
+function closeOv(){ clearInterval(timerIV); document.getElementById('overlay').classList.remove('show'); nextTurn(); }
+function doneCard(){ sfx('done'); buzz(25); closeOv(); }
+function useJolly(){ S.jolly[who()]--; sfx('draw'); closeOv(); }
+function refuse(p){ add(who(),p); sfx('penalty'); buzz(80); closeOv(); }
+function doMalus(){ add(who(),2); sfx('penalty'); buzz(80); closeOv(); }
+function doClassifica(){
+  const order=S.players.slice().sort((a,b)=>(S.sips[b]||0)-(S.sips[a]||0));
+  let lines=[]; order.forEach((p,i)=>{ add(p,i+1); lines.push(p+': '+(i+1)+' 🍺'); });
+  sfx('reveal'); flash('rgba(255,138,92,.4)'); buzz([50,40,50,40,90]); updatePlayers();
+  evt('📊 Classifica', 'Si beve in ordine, da chi ne ha bevuti di più a chi di meno: +1 a ogni gradino. '+lines.join('  ·  '), '#FF8A5C');
+}
+function nextTurn(){ if(document.getElementById('overlay').classList.contains('show')) document.getElementById('overlay').classList.remove('show');
+  S.turn=(S.turn+1)%S.players.length; renderTurn(); }
+
+function endGame(){ clearInterval(timerIV); clearTimeout(surpriseIV); sfx('jackpot'); document.getElementById('overlay').classList.remove('show');
+  const r=S.players.map(p=>[p,S.sips[p]||0]).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('rlist').innerHTML=r.map((x,i)=>
+    '<div class="rrow'+(i===0?' first':'')+'"><span class="n">'+(i===0?'👑 ':'')+x[0]+'</span><span class="s">'+x[1]+' sorsi</span></div>').join('');
+  show('recap');
+}
+function reset(){ clearTimeout(surpriseIV); show('setup'); renderChips(); }
+
+renderChips(); renderDie(5);
+</script>
+</body>
+</html>
